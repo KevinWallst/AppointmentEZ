@@ -19,8 +19,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations: Record<Language, Record<string, string>> = {
   zh: {
     // Page titles
-    'page.title': '预约日历',
-    'main.title': '叶乐律师咨询预约',
+    'page.title': '咨询预约',
+    'main.title': '叶乐律师',
     'admin.title': '管理员仪表盘',
     'admin.login.title': '管理员登录',
     'cancel.title': '取消预约',
@@ -141,8 +141,8 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     // Page titles
-    'page.title': 'Appointment Calendar',
-    'main.title': 'Make an appointment with Attorney Ye Le',
+    'page.title': 'Appointment Booking',
+    'main.title': 'Attorney Ye Le',
     'admin.title': 'Admin Dashboard',
     'admin.login.title': 'Admin Login',
     'cancel.title': 'Cancel Appointment',

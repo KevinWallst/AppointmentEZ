@@ -356,29 +356,41 @@ export default function Home() {
     <div style={backgroundStyle}>
       <Container maxWidth="md">
         <Paper style={{ padding: "3rem", backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "2rem" }}>
-          <div>
-            <Typography variant="h4" style={{
-              marginBottom: "1rem",
-              fontFamily: settings.titleStyle.fontFamily,
-              fontSize: settings.titleStyle.fontSize,
-              color: settings.titleStyle.color
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: "2rem"
+          }}>
+            {/* Title Section - Full Width */}
+            <div style={{ width: '100%', textAlign: 'center', marginBottom: '1rem' }}>
+              <Typography variant="h4" style={{
+                fontFamily: settings.titleStyle.fontFamily,
+                fontSize: settings.titleStyle.fontSize,
+                color: settings.titleStyle.color
+              }}>
+                {language === 'zh' ? settings.attorneyName.zh : settings.attorneyName.en}
+              </Typography>
+              <Typography variant="h6" color="text.secondary">
+                {t('page.title')}
+              </Typography>
+            </div>
+
+            {/* Controls Section - Second Row */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '1rem'
             }}>
-              {language === 'zh' ? settings.attorneyName.zh : settings.attorneyName.en}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-              {t('page.title')}
-            </Typography>
+              <LanguageSwitcher />
+              <Link href="/admin/login" passHref>
+                <Button variant="outlined" size="small">
+                  {t('button.admin')}
+                </Button>
+              </Link>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-20px' }}>
-            <LanguageSwitcher />
-            <Link href="/admin/login" passHref>
-              <Button variant="outlined" size="small">
-                {t('button.admin')}
-              </Button>
-            </Link>
-          </div>
-        </div>
 
         <Alert severity="info" style={{ marginBottom: "3rem" }}>
           <Typography variant="body1">
