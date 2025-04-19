@@ -856,7 +856,7 @@ export default function AdminDashboard() {
               {t('button.logout')}
             </button>
           </div>
-          marginBottom: '2rem',
+        <div style={{ marginBottom: '2rem',
           padding: '1rem',
           backgroundColor: '#e8f4fd',
           borderRadius: '4px'
