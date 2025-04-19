@@ -395,7 +395,7 @@ export default function Home() {
               }}>
                 {language === 'zh' ? settings.attorneyName.zh : settings.attorneyName.en}
               </Typography>
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="subtitle1" style={{ fontSize: "0.85rem" }} color="text.secondary">
                 {t('page.title')}
               </Typography>
             </div>
