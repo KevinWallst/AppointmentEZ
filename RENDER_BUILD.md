@@ -35,6 +35,7 @@ Make sure to set these environment variables in the Render dashboard:
 - EMAIL_HOST=smtp.gmail.com
 - EMAIL_PORT=587
 - BASE_URL=https://your-render-app-name.onrender.com
+- PORT=3000 (configured to match existing code that references port 3000)
 
 ## Important Notes for Free Tier
 
