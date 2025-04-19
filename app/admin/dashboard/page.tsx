@@ -782,16 +782,23 @@ export default function AdminDashboard() {
         borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
+        {/* Title Section - Full Width */}
+        <div style={{ 
+          width: '100%', 
+          textAlign: 'center', 
+          marginBottom: '1rem' 
+        }}>
+          <h1 style={{ marginBottom: '0.5rem' }}>{t('main.title')}</h1>
+          <h3 style={{ color: '#666', fontSize: '0.85rem' }}>{t('admin.title')}</h3>
+        </div>
+
+        {/* Controls Section - Second Row */}
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           alignItems: 'center',
           marginBottom: '2rem'
         }}>
-          <div>
-            <h1 style={{ marginBottom: '0.5rem' }}>{t('main.title')}</h1>
-            <h3 style={{ color: '#666' }}>{t('admin.title')}</h3>
-          </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
               onClick={() => {
@@ -856,7 +863,6 @@ export default function AdminDashboard() {
           <p><strong>{t('timezone.info')}</strong></p>
           <p style={{ marginTop: '0.5rem' }}>{t('timezone.shanghai')}</p>
         </div>
-
         {/* Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <Tabs
