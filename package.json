@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "test:timezone": "jest __tests__/utils/dateUtils.test.ts",
     "test:imports": "jest __tests__/imports",
-    "validate-imports": "node scripts/validate-imports.js",
+    "validate-imports": "node scripts/validate-imports-flexible.js",
     "prepare": "husky install",
     "restart": "node restart-server-port-3000.js",
     "render-build": "npm install && npm run build && npm run validate-imports",

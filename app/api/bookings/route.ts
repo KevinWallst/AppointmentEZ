@@ -175,7 +175,7 @@ const transporter = nodemailer.createTransport({
 });
 
 import { formatInTimeZone } from 'date-fns-tz';
-import { getBccEmails } from '../../utils/emailUtils';
+import { getBccEmails } from '../../utils/emailUtils.ts';
 
 // Helper function to send confirmation email
 const sendConfirmationEmail = async (booking: Booking) => {

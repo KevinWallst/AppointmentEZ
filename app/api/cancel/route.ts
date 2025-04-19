@@ -74,7 +74,7 @@ const transporter = nodemailer.createTransport({
 });
 
 import { formatInTimeZone } from 'date-fns-tz';
-import { getBccEmails } from '../../utils/emailUtils';
+import { getBccEmails } from '../../utils/emailUtils.ts';
 
 // Helper function to send cancellation confirmation email
 const sendCancellationEmail = async (booking: Booking, reason: string, language: string = 'zh') => {

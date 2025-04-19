@@ -5,7 +5,7 @@ import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 import nodemailer from 'nodemailer';
 import { formatInTimeZone } from 'date-fns-tz';
-import { getBccEmails } from '../../../utils/emailUtils';
+import { getBccEmails } from '../../../utils/emailUtils.ts';
 
 // Define the booking interface
 interface Booking {
