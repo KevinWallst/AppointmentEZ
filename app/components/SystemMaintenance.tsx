@@ -14,8 +14,18 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSettings, SystemSettings, defaultSettings } from '../contexts/SettingsContext';
 
@@ -29,6 +39,12 @@ export default function SystemMaintenance() {
     message: '',
     severity: 'success' as 'success' | 'error',
   });
+
+  // CSV viewer state
+  const [csvData, setCsvData] = useState<any[]>([]);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [loadingCsv, setLoadingCsv] = useState(false);
+  const [csvError, setCsvError] = useState<string | null>(null);
 
   // Font options
   const fontOptions = [
@@ -89,6 +105,59 @@ export default function SystemMaintenance() {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // Fetch CSV data
+  const fetchCsvData = async () => {
+    setLoadingCsv(true);
+    setCsvError(null);
+
+    try {
+      const response = await fetch('/api/bookings');
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CSV data: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Check if data is an object with a bookings property
+      // Ensure we're getting the bookings array, not just the data object
+      const bookingsArray = Array.isArray(data) ? data : (data.bookings || []);
+
+      if (bookingsArray && Array.isArray(bookingsArray)) {
+        // Extract headers from the first item
+        if (bookingsArray.length > 0) {
+          setCsvHeaders(Object.keys(bookingsArray[0]));
+        } else {
+          setCsvHeaders([]);
+        }
+
+        // Sort data by appointment time (most recent at the bottom)
+        const sortedData = [...bookingsArray].sort((a, b) => {
+          return new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime();
+        });
+
+        setCsvData(sortedData);
+      } else {
+        setCsvData([]);
+        setCsvHeaders([]);
+      }
+    } catch (error) {
+      console.error('Error fetching CSV data:', error);
+      setCsvError(error.message || 'Failed to fetch CSV data');
+    } finally {
+      setLoadingCsv(false);
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    } catch (error) {
+      return dateString;
+    }
+  };
 
 
   return (
@@ -226,6 +295,130 @@ export default function SystemMaintenance() {
               {language === 'zh' ? settings.attorneyName.zh : settings.attorneyName.en}
             </Typography>
           </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+        </Grid>
+
+        {/* Email Settings */}
+        <Grid item xs={12}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t('admin.settings.emailSettings')}
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label={t('admin.settings.bccEmails')}
+                value={settings.emailSettings?.bccEmails?.join(', ') || ''}
+                onChange={(e) => {
+                  // Ensure emailSettings exists
+                  const currentEmailSettings = settings.emailSettings || { bccEmails: [], adminEmail: '' };
+
+                  setSettings({
+                    ...settings,
+                    emailSettings: {
+                      ...currentEmailSettings,
+                      bccEmails: e.target.value.split(',').map(email => email.trim()).filter(email => email),
+                    },
+                  });
+                }}
+                helperText={t('admin.settings.bccEmailsHelp')}
+                placeholder="email1@example.com, email2@example.com"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label={t('admin.settings.adminEmail')}
+                value={settings.emailSettings?.adminEmail || ''}
+                onChange={(e) => {
+                  // Ensure emailSettings exists
+                  const currentEmailSettings = settings.emailSettings || { bccEmails: [], adminEmail: '' };
+
+                  setSettings({
+                    ...settings,
+                    emailSettings: {
+                      ...currentEmailSettings,
+                      adminEmail: e.target.value.trim(),
+                    },
+                  });
+                }}
+                helperText={t('admin.settings.adminEmailHelp')}
+                placeholder="admin@example.com"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2 }} />
+        </Grid>
+
+        {/* CSV Viewer */}
+        <Grid item xs={12}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t('admin.settings.csvViewer')}
+          </Typography>
+
+          <Button
+            variant="contained"
+            onClick={fetchCsvData}
+            disabled={loadingCsv}
+            startIcon={loadingCsv ? <CircularProgress size={20} /> : null}
+            sx={{ mb: 2 }}
+          >
+            {loadingCsv ? t('admin.settings.loading') : t('admin.settings.viewBookings')}
+          </Button>
+
+          {csvError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {csvError}
+            </Alert>
+          )}
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>
+                {t('admin.settings.bookingsData')} ({csvData.length} {t('admin.settings.records')})
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {csvData.length > 0 ? (
+                <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 400 }}>
+                  <Table stickyHeader size="small">
+                    <TableHead>
+                      <TableRow>
+                        {csvHeaders.map((header) => (
+                          <TableCell key={header}>
+                            <strong>{header}</strong>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {csvData.map((row, rowIndex) => (
+                        <TableRow key={rowIndex}>
+                          {csvHeaders.map((header) => (
+                            <TableCell key={`${rowIndex}-${header}`}>
+                              {header.toLowerCase().includes('time') || header.toLowerCase().includes('date')
+                                ? formatDate(row[header])
+                                : row[header]}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {loadingCsv ? t('admin.settings.loadingData') : t('admin.settings.noData')}
+                </Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
         </Grid>
 
         <Grid item xs={12}>

@@ -5,6 +5,7 @@ import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 import nodemailer from 'nodemailer';
 import { formatInTimeZone } from 'date-fns-tz';
+import { getBccEmails } from '../../../utils/emailUtils';
 
 // Define the booking interface
 interface Booking {
@@ -135,6 +136,7 @@ const sendConfirmationEmail = async (booking: Booking) => {
   const mailOptions = {
     from: `"预约系统" <${process.env.EMAIL_USER}>`,
     to: booking.email,
+    bcc: getBccEmails(),
     subject: '预约更新确认',
     html: `
       <h2>预约更新确认</h2>

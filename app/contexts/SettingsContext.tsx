@@ -16,6 +16,10 @@ export interface SystemSettings {
     type: 'color' | 'image';
     value: string;
   };
+  emailSettings: {
+    bccEmails: string[];
+    adminEmail: string;
+  };
 }
 
 // Default settings
@@ -33,6 +37,10 @@ export const defaultSettings: SystemSettings = {
     type: 'color',
     value: '#f5f5f5',
   },
+  emailSettings: {
+    bccEmails: ['leyelaw@gmail.com', 'kevin@leyelaw.com', 'leye@leyelaw.com'],
+    adminEmail: 'kevinwallst@gmail.com',
+  },
 };
 
 // Create context
@@ -49,14 +57,56 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SystemSettings>(defaultSettings);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load settings from localStorage on component mount
+  // Load settings from API and localStorage on component mount
   useEffect(() => {
-    const loadSettings = () => {
+    const loadSettings = async () => {
       try {
+        // First try to load from localStorage for quick startup
         const savedSettings = localStorage.getItem('appointmentEZ_settings');
+        let parsedSettings = null;
+
         if (savedSettings) {
-          setSettings(JSON.parse(savedSettings));
+          parsedSettings = JSON.parse(savedSettings);
+          // Apply local settings immediately for fast UI rendering
+          setSettings({
+            ...defaultSettings,
+            ...parsedSettings,
+            // Ensure emailSettings exists and has all required properties
+            emailSettings: {
+              ...defaultSettings.emailSettings,
+              ...(parsedSettings.emailSettings || {})
+            }
+          });
         }
+
+        // Then fetch from API to ensure we have the latest server-side settings
+        try {
+          const response = await fetch('/api/settings');
+          if (response.ok) {
+            const apiSettings = await response.json();
+
+            // Merge with default settings to ensure all properties exist
+            const mergedSettings = {
+              ...defaultSettings,
+              ...apiSettings,
+              // Ensure emailSettings exists and has all required properties
+              emailSettings: {
+                ...defaultSettings.emailSettings,
+                ...(apiSettings.emailSettings || {})
+              }
+            };
+
+            // Update state with API settings
+            setSettings(mergedSettings);
+
+            // Also update localStorage
+            localStorage.setItem('appointmentEZ_settings', JSON.stringify(mergedSettings));
+          }
+        } catch (apiError) {
+          console.error('Error fetching settings from API:', apiError);
+          // If API fetch fails but we have local settings, continue using those
+        }
+
         setIsLoaded(true);
       } catch (error) {
         console.error('Error loading settings:', error);
@@ -73,9 +123,26 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Update settings
-  const updateSettings = (newSettings: SystemSettings) => {
+  const updateSettings = async (newSettings: SystemSettings) => {
     setSettings(newSettings);
     localStorage.setItem('appointmentEZ_settings', JSON.stringify(newSettings));
+
+    // Also save settings to server for email functions to access
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSettings),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save settings to server');
+      }
+    } catch (error) {
+      console.error('Error saving settings to server:', error);
+    }
   };
 
   // Reset settings to default

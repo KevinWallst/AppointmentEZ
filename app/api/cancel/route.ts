@@ -5,7 +5,7 @@ import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
 import nodemailer from 'nodemailer';
 
-const bookingsFilePath = path.join(process.cwd(), 'data', 'bookings.csv');
+const bookingsFilePath = path.join(process.cwd(), 'bookings.csv');
 
 // Define the structure of a booking
 interface Booking {
@@ -21,12 +21,6 @@ interface Booking {
 
 // Helper function to read bookings from CSV
 const readBookings = (): Booking[] => {
-  // Ensure the data directory exists
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
   // Check if the file exists
   if (!fs.existsSync(bookingsFilePath)) {
     return [];
@@ -52,15 +46,13 @@ const readBookings = (): Booking[] => {
 
 // Helper function to write bookings to CSV
 const writeBookings = (bookings: Booking[]): void => {
-  // Ensure the data directory exists
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
   // Convert bookings to CSV string
   const csv = stringify(bookings, {
-    header: true
+    header: true,
+    quoted: true, // Always quote fields to handle special characters
+    quoted_empty: true, // Quote empty fields
+    record_delimiter: '\n', // Use LF for line endings
+    escape: '"' // Use double quotes for escaping
   });
 
   // Write to file
@@ -82,6 +74,7 @@ const transporter = nodemailer.createTransport({
 });
 
 import { formatInTimeZone } from 'date-fns-tz';
+import { getBccEmails } from '../../utils/emailUtils';
 
 // Helper function to send cancellation confirmation email
 const sendCancellationEmail = async (booking: Booking, reason: string, language: string = 'zh') => {
@@ -135,6 +128,7 @@ const sendCancellationEmail = async (booking: Booking, reason: string, language:
   const mailOptions = {
     from: `"${language === 'en' ? 'Appointment System' : '预约系统'}" <${process.env.EMAIL_USER}>`,
     to: booking.email,
+    bcc: getBccEmails(),
     subject: subject,
     html: html
   };

@@ -175,6 +175,7 @@ const transporter = nodemailer.createTransport({
 });
 
 import { formatInTimeZone } from 'date-fns-tz';
+import { getBccEmails } from '../../utils/emailUtils';
 
 // Helper function to send confirmation email
 const sendConfirmationEmail = async (booking: Booking) => {
@@ -222,6 +223,7 @@ const sendConfirmationEmail = async (booking: Booking) => {
   const mailOptions = {
     from: `"预约系统" <${process.env.EMAIL_USER}>`,
     to: booking.email,
+    bcc: getBccEmails(),
     subject: '预约确认',
     html: `
       <h2>预约确认</h2>

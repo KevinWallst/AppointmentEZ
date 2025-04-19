@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import SystemMaintenance from '../../components/SystemMaintenance';
+import HealthCheck from '../../components/HealthCheck';
 import { Tabs, Tab, Box } from '@mui/material';
 import {
   format,
@@ -62,52 +63,52 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Add a global fetch interceptor to track all fetch requests
+    // Load bookings
+    fetchBookings();
+    // Generate calendar days
+    generateCalendarDays();
+  }, []);
+
+  // Set up fetch interceptor in a separate effect with proper cleanup
+  useEffect(() => {
+    // Store the original fetch function
     const originalFetch = window.fetch;
-    window.fetch = function(input, init) {
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+    // Create the interceptor function
+    const interceptFetch = function(input: RequestInfo | URL, init?: RequestInit) {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : (input as Request).url;
       const method = init?.method || 'GET';
 
-      console.log(`%c=== FETCH REQUEST STARTED: ${method} ${url} ===`, 'background: #2196f3; color: white; font-size: 12px;');
-      console.log('Request details:', {
-        url,
-        method,
-        headers: init?.headers,
-        body: init?.body,
-        modalCloseInProgress: (window as any).__modalCloseInProgress || false,
-        timestamp: new Date().toISOString(),
-        stack: new Error().stack
-      });
+      // Reduce logging to minimize memory usage
+      console.log(`Fetch: ${method} ${url}`);
 
       // If modal close is in progress and this is a booking request, abort it
       if ((window as any).__modalCloseInProgress &&
           (url.includes('/api/appointments/book') || url.includes('/api/appointments/update'))) {
-        console.error(`%c=== ABORTING FETCH DURING MODAL CLOSE: ${method} ${url} ===`, 'background: #ff0000; color: white; font-size: 12px;');
+        console.error(`Aborting fetch during modal close: ${method} ${url}`);
         return Promise.reject(new Error('Fetch aborted: Modal close in progress'));
       }
 
       // Call the original fetch
       return originalFetch.apply(window, [input, init])
-        .then(response => {
-          console.log(`%c=== FETCH REQUEST COMPLETED: ${method} ${url} ===`, 'background: #4caf50; color: white; font-size: 12px;');
-          console.log('Response status:', response.status);
+        .then((response: Response) => {
+          // Minimal logging
+          console.log(`Fetch completed: ${response.status}`);
           return response;
         })
-        .catch(error => {
-          console.error(`%c=== FETCH REQUEST FAILED: ${method} ${url} ===`, 'background: #f44336; color: white; font-size: 12px;');
-          console.error('Error:', error);
+        .catch((error: Error) => {
+          console.error(`Fetch failed: ${error.message}`);
           throw error;
         });
     };
 
-    // Load bookings
-    fetchBookings();
-    // Generate calendar days
-    generateCalendarDays();
+    // Replace the global fetch
+    window.fetch = interceptFetch;
 
     // Cleanup function to restore original fetch
     return () => {
       window.fetch = originalFetch;
+      console.log('Fetch interceptor removed');
     };
   }, []);
 
@@ -134,7 +135,8 @@ export default function AdminDashboard() {
 
   // Fetch bookings from the server
   const fetchBookings = async () => {
-    console.log('%cFetching latest bookings data...', 'color: blue; font-weight: bold;');
+    console.log('Fetching latest bookings data...');
+
     try {
       setLoading(true);
       // Add cache-busting query parameter to ensure we get fresh data
@@ -817,6 +819,19 @@ export default function AdminDashboard() {
               {t('button.refresh')}
             </button>
             <button
+              onClick={() => router.push('/admin/test')}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              System Tests
+            </button>
+            <button
               onClick={handleLogout}
               style={{
                 padding: '0.5rem 1rem',
@@ -851,6 +866,7 @@ export default function AdminDashboard() {
           >
             <Tab label={t('admin.tabs.dashboard')} id="tab-0" aria-controls="tabpanel-0" />
             <Tab label={t('admin.tabs.maintenance')} id="tab-1" aria-controls="tabpanel-1" />
+            <Tab label={t('admin.tabs.health')} id="tab-2" aria-controls="tabpanel-2" />
           </Tabs>
         </Box>
 
@@ -1201,6 +1217,11 @@ export default function AdminDashboard() {
         {/* System Maintenance Tab */}
         <div role="tabpanel" hidden={activeTab !== 1} id="tabpanel-1" aria-labelledby="tab-1">
           {activeTab === 1 && <SystemMaintenance />}
+        </div>
+
+        {/* Health Check Tab */}
+        <div role="tabpanel" hidden={activeTab !== 2} id="tabpanel-2" aria-labelledby="tab-2">
+          {activeTab === 2 && <HealthCheck />}
         </div>
       </div>
 

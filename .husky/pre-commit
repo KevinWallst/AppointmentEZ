@@ -3,3 +3,6 @@
 
 # Run timezone-specific tests to ensure correct date handling
 npm run test:timezone
+
+# Validate import paths to prevent module resolution errors
+npm run validate-imports

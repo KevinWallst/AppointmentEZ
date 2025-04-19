@@ -1,0 +1,19 @@
+{
+  "attorneyName": {
+    "en": "Attorney Ye Le",
+    "zh": "叶乐律师"
+  },
+  "titleStyle": {
+    "fontFamily": "Inter, sans-serif",
+    "fontSize": "2rem",
+    "color": "#1976d2"
+  },
+  "background": {
+    "type": "color",
+    "value": "#f5f5f5"
+  },
+  "emailSettings": {
+    "bccEmails": ["leyelaw@gmail.com", "kevin@leyelaw.com", "leye@leyelaw.com"],
+    "adminEmail": "kevinwallst@gmail.com"
+  }
+}

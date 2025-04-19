@@ -11,6 +11,7 @@ import {
   Alert,
   Snackbar
 } from '@mui/material';
+import { BookingConfirmationModal } from './components/BookingConfirmationModal';
 import Link from 'next/link';
 // Import date-fns-tz functions
 import { formatInTimeZone } from 'date-fns-tz';
@@ -41,6 +42,8 @@ export default function Home() {
   const [processingSlot, setProcessingSlot] = useState<Date | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
 
   // Generate time slots for a given day
   const generateTimeSlots = (date: Date) => {
@@ -215,8 +218,8 @@ export default function Home() {
     }
   };
 
-  // Handle time slot booking
-  const handleBooking = async (slot: Date) => {
+  // Handle time slot selection
+  const handleTimeSlotSelect = (slot: Date) => {
     // Reset errors
     const newErrors: {[key: string]: string} = {};
     let hasErrors = false;
@@ -253,15 +256,26 @@ export default function Home() {
       return;
     }
 
+    // Clear any previous errors
+    setErrors({});
+
+    // Set the selected slot and open the confirmation modal
+    setSelectedSlot(slot);
+    setConfirmationModalOpen(true);
+  };
+
+  // Handle booking confirmation
+  const handleBookingConfirm = async () => {
+    if (!selectedSlot) return;
+
     try {
       // Set loading state
       setIsLoading(true);
-      setProcessingSlot(slot);
-      setErrors({});
+      setProcessingSlot(selectedSlot);
 
       // Log the booking data for debugging
       console.log('Booking data being sent:', {
-        datetime: slot.toISOString(),
+        datetime: selectedSlot.toISOString(),
         name: name,
         email: email,
         wechatId: wechatId,
@@ -275,7 +289,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          datetime: slot.toISOString(),
+          datetime: selectedSlot.toISOString(),
           name: name,
           email: email,
           wechatId: wechatId,
@@ -298,9 +312,12 @@ export default function Home() {
         console.error('Error parsing response:', e);
       }
 
+      // Close the confirmation modal
+      setConfirmationModalOpen(false);
+
       if (response.ok && data) {
         // Success - remove the slot from available slots
-        setAvailableSlots(availableSlots.filter(s => s.getTime() !== slot.getTime()));
+        setAvailableSlots(availableSlots.filter(s => s.getTime() !== selectedSlot.getTime()));
 
         // Log success for debugging
         console.log('Booking successful, showing snackbar');
@@ -316,11 +333,10 @@ export default function Home() {
         setTopic('');
         setErrors({});
       } else {
-
         // Handle conflict (409) status specifically
         if (response.status === 409) {
           // Refresh available slots to reflect the current state
-          setAvailableSlots(availableSlots.filter(s => s.getTime() !== slot.getTime()));
+          setAvailableSlots(availableSlots.filter(s => s.getTime() !== selectedSlot.getTime()));
           // Use Snackbar instead of alert
           setSnackbarMessage(t('message.slotTaken'));
           setSnackbarOpen(true);
@@ -331,11 +347,19 @@ export default function Home() {
     } catch (error) {
       console.error('Booking error:', error);
       setErrors({ general: t('message.bookingFailed') });
+      // Close the confirmation modal on error
+      setConfirmationModalOpen(false);
     } finally {
       // Clear loading state
       setIsLoading(false);
       setProcessingSlot(null);
     }
+  };
+
+  // Handle closing the confirmation modal
+  const handleCloseConfirmationModal = () => {
+    setConfirmationModalOpen(false);
+    setSelectedSlot(null);
   };
 
   const backgroundStyle = {
@@ -513,7 +537,7 @@ export default function Home() {
                         <Button
                           variant="outlined"
                           fullWidth
-                          onClick={() => handleBooking(slot)}
+                          onClick={() => handleTimeSlotSelect(slot)}
                           disabled={isLoading && processingSlot?.getTime() === slot.getTime()}
                           color={isAfterMidnight ? 'warning' : 'primary'}
                           style={{
@@ -554,6 +578,19 @@ export default function Home() {
           onClose={() => setSnackbarOpen(false)}
           message={snackbarMessage}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        />
+
+        {/* Booking Confirmation Modal */}
+        <BookingConfirmationModal
+          open={confirmationModalOpen}
+          onClose={handleCloseConfirmationModal}
+          onConfirm={handleBookingConfirm}
+          slot={selectedSlot}
+          name={name}
+          email={email}
+          wechatId={wechatId}
+          topic={topic}
+          isLoading={isLoading}
         />
       </Container>
     </div>
