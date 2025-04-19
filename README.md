@@ -134,3 +134,7 @@ Application settings are stored in `settings.json` in the root directory. This f
 - Email settings including BCC recipients and admin email
 
 These settings can be modified through the System Maintenance tab in the admin dashboard.
+
+## Repository Name
+
+The repository folder name has been updated from 'CursorTest' to 'AppointmentEZ' to match the project name.
