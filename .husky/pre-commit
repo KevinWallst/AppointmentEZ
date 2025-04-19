@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run timezone-specific tests to ensure correct date handling
+npm run test:timezone
