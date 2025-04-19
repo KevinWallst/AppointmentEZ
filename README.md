@@ -6,9 +6,12 @@ AppointmentEZ is a simple and elegant appointment booking system that supports b
 
 - **Bilingual Support**: Toggle between Chinese and English interfaces
 - **Time Zone Handling**: Automatically adjusts for different time zones (all times are in Eastern Time - EST/EDT)
+- **Two-Step Booking Confirmation**: Users can review their booking details before finalizing
 - **Admin Dashboard**: Manage appointments with calendar and list views
+- **System Testing**: Comprehensive test suite to verify system functionality
 - **Email Notifications**: Automatic email confirmations with cancellation links
 - **Responsive Design**: Works on desktop and mobile devices
+- **Settings Management**: Customizable attorney name, styling, and email settings
 
 ## Development
 
@@ -22,7 +25,17 @@ npm run dev
 
 ## Testing
 
-The application includes comprehensive tests to ensure correct time zone handling and date management.
+The application includes comprehensive tests to ensure correct time zone handling, date management, and system functionality.
+
+### System Tests
+
+Access the system test suite from the admin dashboard by clicking the "System Tests" button. This runs a series of tests to verify:
+
+- Bookings CSV file integrity
+- Settings file configuration
+- Email configuration
+- API endpoints functionality
+- Filesystem access permissions
 
 ```bash
 # Run all tests
@@ -110,3 +123,14 @@ Access the admin dashboard at `/admin/login` with these credentials:
 ## Data Storage
 
 All appointments are stored in a CSV file (`bookings.csv`) in the root directory.
+
+## Configuration
+
+Application settings are stored in `settings.json` in the root directory. This file contains:
+
+- Attorney name in both languages
+- Title styling preferences
+- Background configuration
+- Email settings including BCC recipients and admin email
+
+These settings can be modified through the System Maintenance tab in the admin dashboard.
