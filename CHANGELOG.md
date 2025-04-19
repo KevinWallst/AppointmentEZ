@@ -25,6 +25,10 @@ All notable changes to the AppointmentEZ project will be documented in this file
 - Authentication mechanism in test page now uses the same key as other admin pages
 - Health check API simplified to reduce memory usage
 - Memory-intensive components removed to improve performance
+- Import path validation for Render.com deployment
+  - Added flexible import validation script that accepts imports with or without file extensions
+  - Updated tsconfig.json to allow importing TypeScript files with extensions
+  - Fixed import paths in API files to ensure consistent format
 
 ### Changed
 - Booking flow now requires explicit confirmation before finalizing
