@@ -782,27 +782,16 @@ export default function AdminDashboard() {
         borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
-        {/* Title row */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: '1rem'
-        }}>
-          <div>
-            <h1 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>{t('main.title')}</h1>
-          </div>
-        </div>
-        
-        {/* Buttons row */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '2rem'
         }}>
-          <h3 style={{ color: '#666', fontSize: '0.85rem' }}>{t('admin.title')}</h3>
-          
+          <div>
+            <h1 style={{ marginBottom: '0.5rem' }}>{t('main.title')}</h1>
+            <h3 style={{ color: '#666' }}>{t('admin.title')}</h3>
+          </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
               onClick={() => {
@@ -856,7 +845,10 @@ export default function AdminDashboard() {
               {t('button.logout')}
             </button>
           </div>
-        <div style={{ marginBottom: '2rem',
+        </div>
+
+        <div style={{
+          marginBottom: '2rem',
           padding: '1rem',
           backgroundColor: '#e8f4fd',
           borderRadius: '4px'
