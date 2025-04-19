@@ -18,7 +18,11 @@
     "prepare": "husky install",
     "restart": "node restart-server-port-3000.js",
     "render-build": "npm install && npm run build && npm run validate-imports",
-    "render-start": "npm run start"
+    "render-start": "npm run start",
+    "build:commit": "chmod +x scripts/build-and-commit.sh && ./scripts/build-and-commit.sh",
+    "build:version": "chmod +x scripts/post-build.sh && ./scripts/post-build.sh",
+    "update:changelog": "chmod +x scripts/pre-build.sh && ./scripts/pre-build.sh",
+    "master-build": "chmod +x scripts/master-build.sh && ./scripts/master-build.sh"
   },
   "keywords": [
     "\"calendar\"",
