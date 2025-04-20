@@ -138,3 +138,39 @@ These settings can be modified through the System Maintenance tab in the admin d
 ## Repository Name
 
 The repository folder name has been updated from 'CursorTest' to 'AppointmentEZ' to match the project name.
+
+## Data Persistence
+
+AppointmentEZ stores booking data in a CSV file (`bookings.csv`) at the root of the project. To ensure this data is not lost during deployments, an automatic archiving system has been implemented:
+
+### Booking Data Archives
+
+- Daily backups are created in the `data/archives` directory
+- Archives are automatically restored after deployments
+- Up to 30 days of booking history is maintained
+
+### Manual Archive Commands
+
+```bash
+# Archive current bookings
+npm run archive-bookings
+
+# Restore from latest archive
+npm run restore-bookings
+
+# Run post-deployment restore (happens automatically on Render)
+npm run post-deploy
+```
+
+### Render.com Configuration
+
+The `render.yaml` file includes a persistent disk configuration to ensure the archives directory is preserved between deployments:
+
+```yaml
+disk:
+  name: data
+  mountPath: /opt/render/project/src/data
+  sizeGB: 1
+```
+
+For more details, see the [archives README](data/archives/README.md).

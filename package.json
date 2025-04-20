@@ -1,6 +1,6 @@
 {
   "name": "appointmentez",
-  "version": "0.2.5",
+  "version": "0.2.7",
   "description": "\"AppointmentEZ - A simple and elegant appointment booking system\"",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,12 @@
     "test": "jest",
     "prebuild": "node scripts/update-version.js && node scripts/validate-build-config.js",
     "build:version": "chmod +x scripts/post-build.sh && ./scripts/post-build.sh",
-    "postbuild": "npm run build:version"
+    "postbuild": "npm run build:version",
+    "archive-bookings": "node scripts/archive-bookings.js",
+    "restore-bookings": "node scripts/restore-bookings.js",
+    "post-deploy": "node scripts/post-deploy.js",
+    "render-build": "npm install && npm run build && npm run validate-imports",
+    "render-start": "npm run post-deploy && npm run start"
   },
   "keywords": [],
   "author": "",
