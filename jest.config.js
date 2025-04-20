@@ -5,6 +5,8 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
+      jsx: 'react-jsx',
+      isolatedModules: true
     }],
     '^.+\\.(js|jsx)$': ['babel-jest', {
       presets: [
@@ -18,7 +20,10 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^app/(.*)$': '<rootDir>/app/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^next/server$': '<rootDir>/__mocks__/next-server.js',
+    '^../app/components/AppointmentModal$': '<rootDir>/__mocks__/app/components/AppointmentModal.js',
+    '^../app/admin/dashboard/page$': '<rootDir>/__mocks__/app/admin/dashboard/page.js'
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transformIgnorePatterns: [
@@ -27,4 +32,6 @@ module.exports = {
   testEnvironmentOptions: {
     url: 'http://localhost:3000'
   },
+  // Add this to handle Next.js specific modules
+  moduleDirectories: ['node_modules', '<rootDir>'],
 };
