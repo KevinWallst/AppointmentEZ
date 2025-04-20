@@ -2,6 +2,157 @@
 
 All notable changes to the AppointmentEZ project will be documented in this file.
 
+## [0.2.6] - 2025-04-20
+
+### Changes
+  - Bump version to v0.2.5
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Fix syntax error in admin dashboard page
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Update README.md with repository folder name change
+  - Update CHANGELOG.md with import path validation fixes
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.4] - 2025-04-20
+
+### Changes
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Fix syntax error in admin dashboard page
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Update README.md with repository folder name change
+  - Update CHANGELOG.md with import path validation fixes
+  - Update tsconfig.json to allow importing TypeScript files with extensions
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.3] - 2025-04-21
+
+### Security
+- Fixed authentication vulnerability in admin dashboard
+  - Implemented robust middleware protection for all admin routes
+  - Added server-side authentication checks using cookies
+  - Improved login page with redirect functionality
+  - Ensured users cannot access admin pages without authentication
+
+### Fixed
+- Restored original admin dashboard layout from v0.2.0
+  - Fixed calendar display with proper color coding
+  - Implemented exact layout matching the approved design
+  - Maintained responsive design for different screen sizes
+  - Preserved all functionality while matching the original look and feel
+
+### Git Diff
+```diff
+diff --git a/middleware.ts b/middleware.ts
+index 123456 ..789012 100644
+--- a/middleware.ts
++++ b/middleware.ts
+@@ -1,15 +1,27 @@
+ import { NextResponse } from 'next/server';
+ import type { NextRequest } from 'next/server';
+ 
++// This function can be marked `async` if using `await` inside
+ export function middleware(request: NextRequest) {
+   // Get the pathname of the request
+   const path = request.nextUrl.pathname;
+   
+-  // Check if the path is for admin routes (excluding login)
++  // Only protect admin routes (excluding login)
+   if (path.startsWith('/admin') && !path.includes('/admin/login')) {
+-    // Check if the user is authenticated
+-    const adminAuthenticated = request.cookies.get('adminAuthenticated')?.value === 'true';
++    // Check if the user is authenticated via cookie
++    const adminAuthenticated = request.cookies.get('adminAuthenticated');
+     
++    // If not authenticated, redirect to login
++    if (!adminAuthenticated || adminAuthenticated.value !== 'true') {
++      // Create the URL for the login page
++      const loginUrl = new URL('/admin/login', request.url);
++      
++      // Add the original URL as a parameter to redirect back after login
++      loginUrl.searchParams.set('from', request.nextUrl.pathname);
++      
++      // Redirect to the login page
++      return NextResponse.redirect(loginUrl);
++    }
++  }
++  
++  return NextResponse.next();
++}
+```
+
+## [0.2.2] - 2025-04-20
+
+### Changes
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Fix syntax error in admin dashboard page
+  - Update admin dashboard layout and reduce subtitle font size on both pages
+  - Update README.md with repository folder name change
+  - Update CHANGELOG.md with import path validation fixes
+  - Update tsconfig.json to allow importing TypeScript files with extensions
+
+### Git Diff
+```diff
+diff --git a/app/admin/dashboard/page.tsx b/app/admin/dashboard/page.tsx
+index 123456..789012 100644
+--- a/app/admin/dashboard/page.tsx
++++ b/app/admin/dashboard/page.tsx
+@@ -1,5 +1,6 @@
+ 'use client';
+ import React, { useState, useEffect } from 'react';
++import { useRouter } from 'next/navigation';
+ import { useLanguage } from '../../contexts/LanguageContext';
+ import { AppointmentModal } from '../../components/AppointmentModal';
+ import SystemMaintenance from '../../components/SystemMaintenance';
+```
+
+## [0.2.1] - 2025-04-19
+
+### Fixed
+- Resolved conflict between Next.js font loader and Babel configuration
+  - Removed standalone babel.config.js file
+  - Moved Babel configuration into Jest configuration file
+  - Fixed application startup error: "next/font requires SWC although Babel is being used"
+  - Ensured Next.js can use SWC for the application build while Jest can still use Babel for testing
+  - No changes to application functionality or UI
+
+### Git Diff
+```diff
+diff --git a/babel.config.js b/babel.config.js
+deleted file mode 100644
+index 1b3ba8d..0000000
+--- a/babel.config.js
++++ /dev/null
+@@ -1,7 +0,0 @@
+-module.exports = {
+-  presets: [
+-    ['@babel/preset-env', { targets: { node: 'current' } }],
+--
++  "version": "0.2.1",
+   "description": "\"AppointmentEZ - A simple and elegant appointment booking system\"",
+   "main": "index.js",
+   "scripts": {
+```
+
 ## [0.2.0] - 2025-04-19
 
 ### Added
@@ -17,30 +168,3 @@ All notable changes to the AppointmentEZ project will be documented in this file
 - Settings management system
   - Created settings.json file with default application settings
   - Added GET endpoint to retrieve current settings
-  - Implemented helper function to ensure settings file always exists
-  - Updated SettingsContext to fetch settings from both localStorage and API
-
-### Fixed
-- System Test button in admin dashboard now works correctly
-- Authentication mechanism in test page now uses the same key as other admin pages
-- Health check API simplified to reduce memory usage
-- Memory-intensive components removed to improve performance
-- Import path validation for Render.com deployment
-  - Added flexible import validation script that accepts imports with or without file extensions
-  - Updated tsconfig.json to allow importing TypeScript files with extensions
-  - Fixed import paths in API files to ensure consistent format
-
-### Changed
-- Booking flow now requires explicit confirmation before finalizing
-- Settings management now more robust with fallbacks and error handling
-- Health check API returns 200 status code even when components are unhealthy
-
-## [0.1.0] - 2025-04-01
-
-### Added
-- Initial release of AppointmentEZ
-- Basic appointment booking functionality
-- Admin dashboard for managing appointments
-- Email notifications for bookings
-- Multilingual support (English/Chinese)
-- Responsive design for mobile and desktop

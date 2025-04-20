@@ -11,3 +11,7 @@ services:
       - key: PORT
         value: 3000
     healthCheckPath: /api/health
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

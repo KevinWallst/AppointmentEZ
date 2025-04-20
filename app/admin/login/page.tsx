@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Container,
   Paper,
@@ -11,6 +11,7 @@ import {
   Alert
 } from '@mui/material';
 import { useLanguage } from '../../contexts/LanguageContext';
+import Cookies from 'js-cookie';
 
 export default function AdminLogin() {
   const { t } = useLanguage();
@@ -18,16 +19,35 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get('from') || '/admin/dashboard';
+
+  // Check if already authenticated
+  useEffect(() => {
+    const isAuthenticated = Cookies.get('adminAuthenticated') === 'true';
+    if (isAuthenticated) {
+      router.push(redirectPath);
+    }
+  }, [redirectPath, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Simple hardcoded authentication
     if (username === 'admin' && password === 'notpassword') {
-      // Set a session cookie or localStorage item to maintain login state
+      // Set both cookie and localStorage for authentication
+      Cookies.set('adminAuthenticated', 'true', { 
+        expires: 1, // Expires in 1 day
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      
+      // Keep localStorage for backward compatibility with existing code
       localStorage.setItem('adminAuthenticated', 'true');
-      // Redirect to admin dashboard
-      router.push('/admin/dashboard');
+      
+      // Redirect to the original path or admin dashboard
+      router.push(redirectPath);
     } else {
       setError(t('message.loginFailed'));
     }

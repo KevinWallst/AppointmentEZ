@@ -35,3 +35,4 @@ next-env.d.ts
 
 # CSV data files (optional, if you want to exclude them from git)
 # bookings.csv
+# Data archives\ndata/archives/

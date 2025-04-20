@@ -6,7 +6,13 @@ module.exports = {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
     }],
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx)$': ['babel-jest', {
+      presets: [
+        ['@babel/preset-env', { targets: { node: 'current' } }],
+        '@babel/preset-typescript',
+        ['@babel/preset-react', { runtime: 'automatic' }]
+      ]
+    }],
   },
   testMatch: ['**/__tests__/**/*.test.(ts|tsx|js|jsx)'],
   moduleNameMapper: {
