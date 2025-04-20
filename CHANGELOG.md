@@ -2,6 +2,63 @@
 
 All notable changes to the AppointmentEZ project will be documented in this file.
 
+## [0.2.10] - 2025-04-20
+
+### Changes
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+  - Bump version to v0.2.7
+  - Bump version to v0.2.5
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.9] - 2025-04-20
+
+### Changes
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+  - Bump version to v0.2.7
+  - Bump version to v0.2.5
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.8] - 2025-04-20
+
+### Changes
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+  - Bump version to v0.2.7
+  - Bump version to v0.2.5
+  - Add validation tools and documentation for Next.js font loader and Babel configuration conflict
+  - Fix test configuration and update test files to improve test coverage
+  - Fix admin dashboard layout: Move title and subtitle to top row, buttons to second row
+  - Merge fix-admin-layout branch: Update admin dashboard layout and reduce subtitle font size
+
+### Git Diff
+```diff
+
+```
+
 ## [0.2.6] - 2025-04-20
 
 ### Changes
