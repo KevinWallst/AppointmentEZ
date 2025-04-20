@@ -1,37 +1,48 @@
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json',
-      jsx: 'react-jsx',
-      isolatedModules: true
-    }],
-    '^.+\\.(js|jsx)$': ['babel-jest', {
-      presets: [
-        ['@babel/preset-env', { targets: { node: 'current' } }],
-        '@babel/preset-typescript',
-        ['@babel/preset-react', { runtime: 'automatic' }]
-      ]
-    }],
-  },
-  testMatch: ['**/__tests__/**/*.test.(ts|tsx|js|jsx)'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
-    '^app/(.*)$': '<rootDir>/app/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '^next/server$': '<rootDir>/__mocks__/next-server.js',
-    '^../app/components/AppointmentModal$': '<rootDir>/__mocks__/app/components/AppointmentModal.js',
-    '^../app/admin/dashboard/page$': '<rootDir>/__mocks__/app/admin/dashboard/page.js'
-  },
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: './',
+});
+
+// Add any custom config to be passed to Jest
+const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@testing-library)/)',
-  ],
-  testEnvironmentOptions: {
-    url: 'http://localhost:3000'
+  testEnvironment: 'jest-environment-jsdom',
+  moduleNameMapper: {
+    '^@/components/(.*)$': '<rootDir>/app/components/$1',
+    '^@/app/(.*)$': '<rootDir>/app/$1',
+    '^@/utils/(.*)$': '<rootDir>/app/utils/$1',
+    '^@/contexts/(.*)$': '<rootDir>/app/contexts/$1',
+    '^@/lib/(.*)$': '<rootDir>/app/lib/$1',
+    '^@/styles/(.*)$': '<rootDir>/app/styles/$1',
   },
-  // Add this to handle Next.js specific modules
-  moduleDirectories: ['node_modules', '<rootDir>'],
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@mui|@babel|react-dnd|dnd-core|react-dnd-html5-backend)/)',
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/',
+  ],
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    '!app/**/*.d.ts',
+    '!app/**/_*.{js,jsx,ts,tsx}',
+    '!app/**/*.stories.{js,jsx,ts,tsx}',
+    '!app/api/**/*.{js,jsx,ts,tsx}',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
 };
+
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+module.exports = createJestConfig(customJestConfig);

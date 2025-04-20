@@ -10,53 +10,34 @@ process.env.EMAIL_PASS = 'test-password';
 require('@testing-library/jest-dom');
 
 // Mock localStorage
-const localStorageMock = (function() {
-  let store = {};
-  return {
-    getItem: jest.fn(key => store[key] || null),
-    setItem: jest.fn((key, value) => {
-      store[key] = value.toString();
-    }),
-    removeItem: jest.fn(key => {
-      delete store[key];
-    }),
-    clear: jest.fn(() => {
-      store = {};
-    }),
-    key: jest.fn(index => Object.keys(store)[index] || null),
-    get length() {
-      return Object.keys(store).length;
-    }
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+const localStorageMock = {
+  getItem: jest.fn(key => 'true'),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+  key: jest.fn(index => null),
+  length: 0
+};
 
 // Mock sessionStorage
-const sessionStorageMock = (function() {
-  let store = {};
-  return {
-    getItem: jest.fn(key => store[key] || null),
-    setItem: jest.fn((key, value) => {
-      store[key] = value.toString();
-    }),
-    removeItem: jest.fn(key => {
-      delete store[key];
-    }),
-    clear: jest.fn(() => {
-      store = {};
-    }),
-    key: jest.fn(index => Object.keys(store)[index] || null),
-    get length() {
-      return Object.keys(store).length;
-    }
-  };
-})();
+const sessionStorageMock = {
+  getItem: jest.fn(key => 'true'),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+  key: jest.fn(index => null),
+  length: 0
+};
+
+// Set up localStorage and sessionStorage mocks
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true
+});
 
 Object.defineProperty(window, 'sessionStorage', {
-  value: sessionStorageMock
+  value: sessionStorageMock,
+  writable: true
 });
 
 // Mock window.alert

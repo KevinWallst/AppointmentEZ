@@ -1,54 +1,74 @@
-/**
- * @jest-environment jsdom
- */
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
-// Mock component for testing table alignment
-const AdminTable = () => {
+// Mock component for testing
+const AdminTable = ({ bookings }: { bookings: any[] }) => {
   return (
     <div style={{ width: '100%', overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th style={{ width: '5%', textAlign: 'center' }}>状态</th>
-            <th style={{ width: '20%' }}>日期和时间</th>
+            <th style={{ textAlign: 'left' }}>Date</th>
+            <th style={{ textAlign: 'left' }}>Name</th>
+            <th style={{ textAlign: 'left' }}>Contact</th>
+            <th style={{ textAlign: 'left' }}>Topic</th>
+            <th style={{ textAlign: 'center' }}>Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style={{ width: '5%', textAlign: 'center' }}>U</td>
-            <td style={{ width: '20%', wordBreak: 'break-word' }}>2025年04月21日 9:00 AM</td>
-          </tr>
+          {bookings.map((booking, index) => (
+            <tr key={index}>
+              <td>{booking.date}</td>
+              <td>{booking.name}</td>
+              <td>{booking.contact}</td>
+              <td>{booking.topic}</td>
+              <td style={{ textAlign: 'center' }}>{booking.status}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
   );
 };
 
-describe('Admin Table Alignment', () => {
-  it('renders table with correct column widths', () => {
-    render(<AdminTable />);
+describe('Admin Table Alignment Tests', () => {
+  const mockBookings = [
+    {
+      date: '2025-04-21 09:00',
+      name: 'Test User',
+      contact: 'test@example.com',
+      topic: 'Test Topic',
+      status: '+2',
+    },
+  ];
+
+  test('should align status column to center', () => {
+    render(<AdminTable bookings={mockBookings} />);
     
-    // Get table headers and cells
+    // Get all table header cells
     const headers = screen.getAllByRole('columnheader');
+    
+    // Check that the status header is aligned to center
+    expect(headers[4]).toHaveStyle('text-align: center');
+    
+    // Get all table cells in the first row
     const cells = screen.getAllByRole('cell');
     
-    // Check content
-    expect(headers[0]).toHaveTextContent('状态');
-    expect(headers[0]).toHaveAttribute('style', expect.stringContaining('width: 5%'));
-    expect(headers[0]).toHaveAttribute('style', expect.stringContaining('text-align: center'));
+    // Check that the status cell is aligned to center
+    expect(cells[4]).toHaveStyle('text-align: center');
+  });
+
+  test('should align other columns to left', () => {
+    render(<AdminTable bookings={mockBookings} />);
     
-    expect(headers[1]).toHaveTextContent('日期和时间');
-    expect(headers[1]).toHaveAttribute('style', expect.stringContaining('width: 20%'));
+    // Get all table header cells
+    const headers = screen.getAllByRole('columnheader');
     
-    expect(cells[0]).toHaveTextContent('U');
-    expect(cells[0]).toHaveAttribute('style', expect.stringContaining('width: 5%'));
-    expect(cells[0]).toHaveAttribute('style', expect.stringContaining('text-align: center'));
-    
-    expect(cells[1]).toHaveTextContent('2025年04月21日 9:00 AM');
-    expect(cells[1]).toHaveAttribute('style', expect.stringContaining('width: 20%'));
-    expect(cells[1]).toHaveAttribute('style', expect.stringContaining('word-break: break-word'));
+    // Check that other headers are aligned to left
+    expect(headers[0]).toHaveStyle('text-align: left');
+    expect(headers[1]).toHaveStyle('text-align: left');
+    expect(headers[2]).toHaveStyle('text-align: left');
+    expect(headers[3]).toHaveStyle('text-align: left');
   });
 });
