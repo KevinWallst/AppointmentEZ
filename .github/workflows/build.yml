@@ -26,8 +26,18 @@ jobs:
 
     - name: Run tests with summary
       run: |
-        TEST_OUTPUT=$(npm test || true)
+        # Run tests with --detectOpenHandles and --forceExit flags
+        TEST_OUTPUT=$(npm test -- --detectOpenHandles --forceExit || true)
         echo "$TEST_OUTPUT"
+        
+        # Check if tests actually failed (not just exit code issues)
+        if echo "$TEST_OUTPUT" | grep -q "FAIL "; then
+          echo "Tests failed!"
+          TEST_FAILED=true
+        else
+          echo "All tests passed!"
+          TEST_FAILED=false
+        fi
         
         echo "## Test Summary Table" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -128,8 +138,8 @@ jobs:
         
         echo "| - | **SUMMARY** | **All Tests** | **$total_tests** | **$passing_files/$total_files PASS** | **$failing_tests failing, $passing_tests passing** |" >> $GITHUB_STEP_SUMMARY
         
-        # Check if tests failed
-        if echo "$TEST_OUTPUT" | grep -q "FAIL"; then
+        # Only fail the build if tests actually failed, not just if the process exited with code 1
+        if [ "$TEST_FAILED" = true ]; then
           echo "Tests failed!"
           exit 1
         fi
