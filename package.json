@@ -17,7 +17,7 @@
     "archive-bookings": "node scripts/archive-bookings.js",
     "restore-bookings": "node scripts/restore-bookings.js",
     "post-deploy": "node scripts/post-deploy.js",
-    "render-build": "npm install && npm run test:ci || echo 'Tests completed' && npm run build && npm run validate-imports",
+    "render-build": "npm install --legacy-peer-deps && npm run test:ci || echo 'Tests completed' && npm run build && npm run validate-imports",
     "render-start": "npm run post-deploy && npm run start",
     "validate-imports": "node scripts/validate-imports.js"
   },
@@ -32,7 +32,7 @@
     "@mui/x-date-pickers": "^6.19.7",
     "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.1",
     "dayjs": "^1.11.10",
     "next": "^15.3.0",
@@ -48,10 +48,14 @@
     "@types/node": "^20.12.12",
     "@types/react": "^18.2.69",
     "cross-env": "^7.0.3",
+    "csv-parse": "^5.6.0",
+    "csv-stringify": "^6.5.2",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.3.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "js-cookie": "^3.0.5",
+    "next-intl": "^4.0.2",
     "typescript": "^5.4.5"
   }
 }
