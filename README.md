@@ -1,4 +1,4 @@
-# AppointmentEZ v0.2.51
+# AppointmentEZ v0.2.52
 
 AppointmentEZ is a simple and elegant appointment booking system that supports both Chinese and English languages and handles time zone differences automatically. Perfect for professionals who need to manage client appointments efficiently.
 
