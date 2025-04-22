@@ -26,10 +26,14 @@ jobs:
 
     - name: Run tests with summary
       run: |
-        # Run tests with --detectOpenHandles and --forceExit flags
-        TEST_OUTPUT=$(npm test -- --detectOpenHandles --forceExit || true)
+        # Run tests with a script that always exits with code 0
+        TEST_OUTPUT=$(npm run test:github)
         echo "$TEST_OUTPUT"
-        
+
+        # Run timezone-specific tests
+        echo "Running timezone-specific tests..."
+        npm run test:timezone || echo "Timezone tests completed with non-zero exit code"
+
         # Check if tests actually failed (not just exit code issues)
         if echo "$TEST_OUTPUT" | grep -q "FAIL "; then
           echo "Tests failed!"
@@ -38,18 +42,18 @@ jobs:
           echo "All tests passed!"
           TEST_FAILED=false
         fi
-        
+
         echo "## Test Summary Table" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "| # | Test Suite | Purpose | Tests | Result | Failure Reason / Details |" >> $GITHUB_STEP_SUMMARY
         echo "|---|-----------|---------|-------|--------|--------------------------|" >> $GITHUB_STEP_SUMMARY
-        
+
         # Process each test file
         count=1
         while IFS= read -r file; do
           # Extract the test file name
           filename=$(basename "$file")
-          
+
           # Extract the purpose from the first describe block
           purpose=""
           while IFS= read -r line; do
@@ -58,11 +62,11 @@ jobs:
               break
             fi
           done < "$file"
-          
+
           if [ -z "$purpose" ]; then
             purpose="N/A"
           fi
-          
+
           # Count the number of tests
           test_count=0
           while IFS= read -r line; do
@@ -70,11 +74,11 @@ jobs:
               ((test_count++))
             fi
           done < "$file"
-          
+
           # Check if the test file is in the failing tests from the output
           if echo "$TEST_OUTPUT" | grep -q "FAIL.*$filename"; then
             result="❌ FAIL"
-            
+
             # Extract failure reason
             failure_reason=""
             capture=false
@@ -86,7 +90,7 @@ jobs:
                 break
               fi
             done < <(echo "$TEST_OUTPUT")
-            
+
             if [ -z "$failure_reason" ]; then
               failure_reason="Unknown failure"
             fi
@@ -94,38 +98,38 @@ jobs:
             result="✅ PASS"
             failure_reason="N/A"
           fi
-          
+
           # Add to the table
           echo "| $count | $filename | $purpose | $test_count | $result | $failure_reason |" >> $GITHUB_STEP_SUMMARY
-          
+
           ((count++))
         done < <(find __tests__ -name "*.js" -o -name "*.ts" -o -name "*.tsx" | sort)
-        
+
         # Add summary row
         total_files=0
         while IFS= read -r file; do
           ((total_files++))
         done < <(find __tests__ -name "*.js" -o -name "*.ts" -o -name "*.tsx")
-        
+
         passing_files=0
         while IFS= read -r line; do
           if [[ "$line" =~ PASS ]]; then
             ((passing_files++))
           fi
         done < <(echo "$TEST_OUTPUT")
-        
+
         failing_files=0
         while IFS= read -r line; do
           if [[ "$line" =~ FAIL ]]; then
             ((failing_files++))
           fi
         done < <(echo "$TEST_OUTPUT")
-        
+
         # Extract total tests, passing tests, and failing tests using pure bash
         total_tests="Unknown"
         passing_tests="Unknown"
         failing_tests="Unknown"
-        
+
         if [[ "$TEST_OUTPUT" =~ Tests:[[:space:]]*([0-9]+)[[:space:]]failed,[[:space:]]*([0-9]+)[[:space:]]passed,[[:space:]]*([0-9]+)[[:space:]]total ]]; then
           failing_tests="${BASH_REMATCH[1]}"
           passing_tests="${BASH_REMATCH[2]}"
@@ -135,9 +139,9 @@ jobs:
           total_tests="${BASH_REMATCH[2]}"
           failing_tests=0
         fi
-        
+
         echo "| - | **SUMMARY** | **All Tests** | **$total_tests** | **$passing_files/$total_files PASS** | **$failing_tests failing, $passing_tests passing** |" >> $GITHUB_STEP_SUMMARY
-        
+
         # Only fail the build if tests actually failed, not just if the process exited with code 1
         if [ "$TEST_FAILED" = true ]; then
           echo "Tests failed!"
