@@ -1,5 +1,30 @@
 # AppointmentEZ Changelog
 
+## [0.2.39] - 2025-04-22
+
+### Changes
+  - Fix GitHub Actions workflow by disabling exit-on-error behavior during tests
+  - Bump version to v0.2.38
+  - Verify test scripts exit with code 0
+  - Bump version to v0.2.37
+  - Bump version to v0.2.35
+  - Test for error code 1
+  - Bump version to v0.2.34
+  - Bump version to v0.2.32
+  - Fix GitHub Actions test script
+  - Bump version to v0.2.31
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.38] - 2025-04-22
+
+### Added
+- Fix GitHub Actions workflow exit-on-error behavior
+
+
 ## [0.2.36] - 2025-04-22
 
 ### Changes
