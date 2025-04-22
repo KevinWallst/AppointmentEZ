@@ -38,6 +38,7 @@ interface AppointmentModalProps {
   existingBooking?: Booking | null;
   onSave: (bookingData: Booking) => Promise<boolean>;
   onDelete?: () => Promise<boolean>;
+  onCancel?: (bookingData: Booking) => Promise<boolean>;
   onRefresh?: () => void; // Optional callback to refresh the parent component
 }
 
@@ -49,6 +50,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   existingBooking,
   onSave,
   onDelete,
+  onCancel,
   onRefresh
 }) => {
   const { t } = useLanguage();
@@ -56,8 +58,10 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false); // Track if a save operation is in progress
   const [deleteInProgress, setDeleteInProgress] = useState(false); // Track if a delete operation is in progress
+  const [cancelInProgress, setCancelInProgress] = useState(false); // Track if a cancel operation is in progress
 
   // Form state
   const [name, setName] = useState('');
@@ -72,7 +76,8 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       setError(null);
       setSuccess(null);
       setIsDeleted(false); // Always reset the deleted state when opening the modal
-      console.log('Modal opened, reset isDeleted state to false');
+      setIsCancelled(false); // Always reset the cancelled state when opening the modal
+      console.log('Modal opened, reset isDeleted and isCancelled states to false');
 
       if (isBooked && existingBooking) {
         // Populate form with existing booking data
@@ -94,7 +99,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
   const handleSave = async () => {
     console.log('%c=== APPOINTMENT MODAL SAVE STARTED ===', 'background: #4caf50; color: white; font-size: 14px;');
-    console.log('Current state:', { saveInProgress, loading, isDeleted, success, error });
+    console.log('Current state:', { saveInProgress, loading, isDeleted, isCancelled, success, error });
 
     // Prevent double submission
     if (saveInProgress) {
@@ -112,6 +117,13 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     if (isDeleted) {
       setError(t('message.cannotSaveDeleted'));
       console.error('Cannot save a deleted appointment');
+      return;
+    }
+
+    // Check if the appointment has been cancelled
+    if (isCancelled) {
+      setError(t('message.cannotSaveCancelled'));
+      console.error('Cannot save a cancelled appointment');
       return;
     }
 
@@ -192,9 +204,130 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
     }
   };
 
+  const handleCancel = async () => {
+    console.log('%c=== APPOINTMENT MODAL CANCEL STARTED ===', 'background: #ff9800; color: white; font-size: 16px;');
+    console.log('Current state:', { cancelInProgress, loading, isCancelled, success, error });
+    console.log('existingBooking:', existingBooking ? JSON.stringify(existingBooking, null, 2) : 'null');
+
+    // Prevent double cancellation
+    if (cancelInProgress) {
+      console.log('Cancel already in progress, ignoring duplicate cancel request');
+      return;
+    }
+
+    if (!onCancel) {
+      console.error('%cERROR: Cancel handler not provided', 'color: red; font-weight: bold;');
+      alert('Technical error: Cancel handler not provided. Check console for details.');
+      return;
+    }
+
+    if (!existingBooking) {
+      console.error('%cERROR: No booking to cancel', 'color: red; font-weight: bold;');
+      setError(t('message.noBookingToCancel'));
+      return;
+    }
+
+    console.log('Cancel button clicked, starting cancel process');
+    setCancelInProgress(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('Calling onCancel handler');
+
+      // Create a global error handler to catch any unhandled errors
+      const originalOnError = window.onerror;
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error('%cUNHANDLED ERROR in cancel operation', 'color: red; font-size: 16px; font-weight: bold;');
+        console.error('Error message:', message);
+        console.error('Source:', source);
+        console.error('Line:', lineno, 'Column:', colno);
+        console.error('Error object:', error);
+
+        // Call the original handler if it exists
+        if (originalOnError) {
+          return originalOnError(message, source, lineno, colno, error);
+        }
+        return false;
+      };
+
+      // Wrap the onCancel call in a try-catch for more detailed error logging
+      let success = false;
+      try {
+        console.log('About to call onCancel()');
+        success = await onCancel(existingBooking);
+        console.log('Cancel operation completed with result:', success);
+      } catch (callError) {
+        console.error('%cException thrown from onCancel handler:', 'color: red; font-weight: bold;', callError);
+        console.error('Error stack:', (callError as Error).stack);
+
+        // Display the error in an alert for immediate visibility
+        alert(`Error in cancel operation: ${callError instanceof Error ? callError.message : String(callError)}`);
+
+        throw callError; // Re-throw to be caught by the outer try-catch
+      } finally {
+        // Restore the original error handler
+        window.onerror = originalOnError;
+      }
+
+      if (success) {
+        console.log('%cCancel successful, showing success message', 'color: green; font-weight: bold;');
+        setSuccess(t('message.cancelSuccess'));
+
+        // Mark the appointment as cancelled
+        setIsCancelled(true);
+        console.log('Marked appointment as cancelled');
+
+        // Call the refresh callback immediately if provided
+        if (onRefresh) {
+          console.log('%cCalling refresh callback after successful cancel', 'color: green; font-weight: bold;');
+          onRefresh();
+        }
+
+        // Keep the modal open so the user can see the success message
+        // The user can close it manually when ready
+        console.log('Keeping modal open after successful cancel');
+
+        // Disable the cancel button to prevent multiple cancellations
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000);
+      } else {
+        console.error('%cCancel operation returned false', 'color: red; font-weight: bold;');
+        setError(t('message.cancelFailed'));
+
+        // Display the error in an alert for immediate visibility
+        alert('Failed to cancel appointment. Check console for details.');
+      }
+    } catch (err) {
+      console.error('%cERROR IN CANCEL OPERATION', 'background: red; color: white; font-size: 16px; padding: 4px;');
+      console.error('Error object:', err);
+      console.error('Error type:', err instanceof Error ? 'Error object' : typeof err);
+
+      if (err instanceof Error) {
+        console.error('Error name:', err.name);
+        console.error('Error message:', err.message);
+        console.error('Error stack:', err.stack);
+      } else {
+        console.error('Non-Error object thrown:', err);
+      }
+
+      // Display the error in an alert for immediate visibility
+      alert(`Error cancelling appointment: ${err instanceof Error ? err.message : String(err)}`);
+
+      setError(t('message.errorOccurred'));
+    } finally {
+      setLoading(false);
+      setCancelInProgress(false);
+      console.log('Cancel process completed, loading state reset');
+      console.log('%c=== APPOINTMENT MODAL CANCEL COMPLETED ===', 'background: #ff9800; color: white; font-size: 16px;');
+    }
+  };
+
   const handleDelete = async () => {
     console.log('%c=== APPOINTMENT MODAL DELETE STARTED ===', 'background: #ff0000; color: white; font-size: 16px;');
-    console.log('Current state:', { deleteInProgress, loading, isDeleted, success, error });
+    console.log('Current state:', { deleteInProgress, loading, isDeleted, isCancelled, success, error });
     console.log('existingBooking:', existingBooking ? JSON.stringify(existingBooking, null, 2) : 'null');
 
     // Prevent double deletion
@@ -426,20 +559,34 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
+        {/* Admin Delete Button - Only shown for admin users */}
         {isBooked && onDelete && (
           <Button
             onClick={handleDelete}
             color="error"
-            disabled={loading || isDeleted}
+            disabled={loading || isDeleted || isCancelled}
             sx={{ mr: 'auto' }}
-            title={isDeleted ? t('message.alreadyDeleted') : ''}
+            title={isDeleted ? t('message.alreadyDeleted') : isCancelled ? t('message.alreadyCancelled') : ''}
           >
-            {loading ? <CircularProgress size={24} /> : isDeleted ? t('message.deleted') : t('button.delete')}
+            {loading && deleteInProgress ? <CircularProgress size={24} /> : isDeleted ? t('message.deleted') : t('button.delete')}
           </Button>
         )}
 
-        {/* Show Close button instead of Cancel when appointment is deleted or saved successfully */}
-        {isDeleted || success !== null ? (
+        {/* User Cancel Button - Shown for all users with existing bookings */}
+        {isBooked && onCancel && (
+          <Button
+            onClick={handleCancel}
+            color="warning"
+            disabled={loading || isDeleted || isCancelled}
+            sx={{ mr: isBooked && onDelete ? '8px' : 'auto' }}
+            title={isDeleted ? t('message.cannotCancelDeleted') : isCancelled ? t('message.alreadyCancelled') : ''}
+          >
+            {loading && cancelInProgress ? <CircularProgress size={24} /> : isCancelled ? t('message.cancelled') : t('button.cancel')}
+          </Button>
+        )}
+
+        {/* Show Close button instead of Cancel when appointment is deleted, cancelled or saved successfully */}
+        {isDeleted || isCancelled || success !== null ? (
           <Button
             onClick={handleClose}
             variant="contained"
@@ -450,7 +597,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
           </Button>
         ) : (
           <Button onClick={handleClose} disabled={loading}>
-            {t('button.cancel')}
+            {t('button.back')}
           </Button>
         )}
 
@@ -458,10 +605,10 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
           onClick={handleSave}
           variant="contained"
           color="primary"
-          disabled={loading || isDeleted || success !== null}
-          title={isDeleted ? t('message.cannotSaveDeleted') : success ? t('message.alreadySaved') : ''}
+          disabled={loading || isDeleted || isCancelled || success !== null}
+          title={isDeleted ? t('message.cannotSaveDeleted') : isCancelled ? t('message.cannotSaveCancelled') : success ? t('message.alreadySaved') : ''}
         >
-          {loading ? <CircularProgress size={24} /> : success ? t('message.saved') : t('button.save')}
+          {loading && saveInProgress ? <CircularProgress size={24} /> : success ? t('message.saved') : t('button.save')}
         </Button>
       </DialogActions>
     </Dialog>

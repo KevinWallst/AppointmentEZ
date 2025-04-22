@@ -613,7 +613,7 @@ export default function AdminDashboard() {
             }
           }}
           slot={selectedSlot}
-          isBooked={false}
+          isBooked={!!selectedBooking}
           existingBooking={selectedBooking}
           onSave={async (bookingData) => {
             try {
@@ -653,6 +653,32 @@ export default function AdminDashboard() {
               return data.success;
             } catch (error) {
               console.error('Error deleting booking:', error);
+              return false;
+            }
+          }}
+          onCancel={async (booking) => {
+            if (!booking || !booking.appointmentTime || !booking.email) {
+              return false;
+            }
+
+            try {
+              const response = await fetch('/api/cancel', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  datetime: booking.appointmentTime,
+                  email: booking.email,
+                  reason: 'Cancelled by user',
+                  language: language // Use the current language
+                })
+              });
+
+              const data = await response.json();
+              return data.success;
+            } catch (error) {
+              console.error('Error cancelling booking:', error);
               return false;
             }
           }}

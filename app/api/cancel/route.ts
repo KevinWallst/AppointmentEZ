@@ -162,9 +162,62 @@ export async function POST(request: Request) {
     console.log(`Found ${bookings.length} bookings in the system`);
 
     // Find the booking to cancel
-    const bookingIndex = bookings.findIndex(
-      booking => booking.appointmentTime === datetime && booking.email === email
-    );
+    const bookingIndex = bookings.findIndex(booking => {
+      try {
+        // Handle different date formats
+        const bookingTime = booking.appointmentTime;
+        let bookingDate;
+
+        // Check if it's in ISO format or localized format
+        if (bookingTime.includes('T')) {
+          // ISO format: 2025-04-23T13:00:00.000Z
+          bookingDate = new Date(bookingTime);
+        } else {
+          // Localized format: 4/21/2025, 9:00:00 AM
+          const parts = bookingTime.split(', ');
+          const datePart = parts[0];
+          const timePart = parts[1];
+
+          // Parse date part (M/D/YYYY)
+          const datePieces = datePart.split('/');
+          const month = parseInt(datePieces[0]) - 1; // 0-based month
+          const day = parseInt(datePieces[1]);
+          const year = parseInt(datePieces[2]);
+
+          // Parse time part (H:MM:SS AM/PM)
+          const timePieces = timePart.split(' ');
+          const timeValues = timePieces[0].split(':');
+          const hours = parseInt(timeValues[0]);
+          const minutes = parseInt(timeValues[1]);
+          const seconds = timeValues.length > 2 ? parseInt(timeValues[2]) : 0;
+          const isPM = timePieces[1] === 'PM';
+
+          // Create date object (in local time)
+          bookingDate = new Date(year, month, day,
+            isPM && hours < 12 ? hours + 12 : hours,
+            minutes, seconds);
+        }
+
+        // Parse the input datetime
+        const inputDate = new Date(datetime);
+
+        console.log(`Comparing booking date: ${bookingDate.toISOString()} with input date: ${inputDate.toISOString()}`);
+
+        // Compare the dates
+        const dateMatch = (
+          bookingDate.getFullYear() === inputDate.getFullYear() &&
+          bookingDate.getMonth() === inputDate.getMonth() &&
+          bookingDate.getDate() === inputDate.getDate() &&
+          bookingDate.getHours() === inputDate.getHours() &&
+          bookingDate.getMinutes() === inputDate.getMinutes()
+        );
+
+        return dateMatch && booking.email === email;
+      } catch (error) {
+        console.error(`Error parsing date: ${booking.appointmentTime}`, error);
+        return false;
+      }
+    });
 
     console.log('Booking index:', bookingIndex);
 
