@@ -1,5 +1,30 @@
 # AppointmentEZ Changelog
 
+## [0.2.49] - 2025-04-22
+
+### Changes
+  - Fix double version increment in GitHub Actions by using a custom build script without version increment
+  - Bump version to v0.2.49
+  - Add comprehensive package dependencies test
+  - Bump version to v0.2.48
+  - Add comprehensive package dependencies test case
+  - Bump version to v0.2.47
+  - Fix version increment to only increment once per build
+  - Bump version to v0.2.46
+  - Fix double version increment by removing version increment from update-version.js
+  - Bump version to v0.2.45
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.49] - 2025-04-22
+
+### Added
+- Fix double version increment in GitHub Actions
+
+
 ## [0.2.47] - 2025-04-22
 
 ### Changes
