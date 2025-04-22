@@ -158,5 +158,5 @@ jobs:
         # Re-enable exit on error for the rest of the workflow
         set -e
 
-    - name: Build
-      run: npm run build
+    - name: Build (without version increment)
+      run: node scripts/github-build.js
