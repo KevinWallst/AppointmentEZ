@@ -1,6 +1,88 @@
 # AppointmentEZ Changelog
 
+## [0.2.19] - 2025-04-22
+
+### Changes
+  - Add test:timezone script to package.json
+  - Update GitHub Actions workflow to use npm install instead of npm ci
+  - Fix dependency conflicts and add missing test dependencies
+  - Fix test exit code issues in GitHub Actions and Render.com builds
+  - Make post-build script more robust for Render.com environment
+  - Bump version to v0.2.18
+  - Bump version to v0.2.15
+  - Fix post-build script to handle version updates in README.md more robustly
+  - Update CHANGELOG.md with latest version information
+  - Bump version to v0.2.13
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.18] - 2025-04-22
+
+### Added
+- Automated build
+
+
 All notable changes to the AppointmentEZ project will be documented in this file.
+
+## [0.2.17] - 2025-04-21
+
+### Changes
+  - Bump version to v0.2.15
+  - Fix post-build script to handle version updates in README.md more robustly
+  - Update CHANGELOG.md with latest version information
+  - Bump version to v0.2.13
+  - Fix health-check tests and add build script improvements with test summary table
+  - Bump version to v0.2.11
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.16] - 2025-04-21
+
+### Changes
+  - Bump version to v0.2.15
+  - Fix post-build script to handle version updates in README.md more robustly
+  - Update CHANGELOG.md with latest version information
+  - Bump version to v0.2.13
+  - Fix health-check tests and add build script improvements with test summary table
+  - Bump version to v0.2.11
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.14] - 2025-04-21
+
+### Changes
+  - Fix post-build script to handle version updates in README.md more robustly
+  - Update CHANGELOG.md with latest version information
+  - Bump version to v0.2.13
+  - Fix health-check tests and add build script improvements with test summary table
+  - Bump version to v0.2.11
+  - Update package-lock.json to match package.json dependencies
+  - Fix all test failures by updating Jest configuration and test mocks
+  - Fix test failures by updating Jest configuration and test mocks
+  - Implement booking data archiving system and fix admin authentication
+  - Bump version to v0.2.7
+
+### Git Diff
+```diff
+
+```
 
 ## [0.2.12] - 2025-04-20
 
