@@ -447,20 +447,31 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
   const lunchStart = new Date(year, month, day, 12, 0, 0);
   const lunchEnd = new Date(year, month, day, 13, 0, 0);
 
+  // Get current date and time
+  const now = new Date();
+
+  // Check if the selected date is in the past
+  const isPastDate = (
+    date.getFullYear() < now.getFullYear() ||
+    (date.getFullYear() === now.getFullYear() && date.getMonth() < now.getMonth()) ||
+    (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() < now.getDate())
+  );
+
+  // If the date is in the past, return empty slots
+  if (isPastDate) {
+    console.log(`Date ${date.toISOString()} is in the past, returning empty slots`);
+    return [];
+  }
+
   // Check if the date is today
-  const today = new Date();
   const isToday = (
-    today.getFullYear() === year &&
-    today.getMonth() === month &&
-    today.getDate() === day
+    now.getFullYear() === year &&
+    now.getMonth() === month &&
+    now.getDate() === day
   );
 
   // Current time in local time zone
   const currentLocal = new Date();
-
-  // Convert current time to EDT (UTC-4) for consistent comparison
-  const currentEDT = new Date(currentLocal);
-  currentEDT.setHours(currentLocal.getHours() - 4); // Adjust for EDT time zone
 
   // Generate slots every 30 minutes
   while (currentTime < endTime) {
@@ -468,12 +479,25 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
     const isLunchTime = currentTime >= lunchStart && currentTime < lunchEnd;
 
     // Skip past times if the selected date is today
-    // Compare using the date components only to avoid time zone issues
-    const isPastTime = isToday && (
-      currentTime.getHours() < currentLocal.getHours() ||
-      (currentTime.getHours() === currentLocal.getHours() &&
-       currentTime.getMinutes() < currentLocal.getMinutes())
-    );
+    // For today, only skip times that are already past
+    let isPastTime = false;
+
+    if (isToday) {
+      // Create a new Date object with the current time
+      const currentHour = currentLocal.getHours();
+      const currentMinute = currentLocal.getMinutes();
+
+      // Compare the slot time with current time
+      isPastTime = (
+        currentTime.getHours() < currentHour ||
+        (currentTime.getHours() === currentHour &&
+         currentTime.getMinutes() <= currentMinute)
+      );
+
+      if (isPastTime) {
+        console.log(`Skipping past time slot: ${currentTime.toLocaleTimeString()}`);
+      }
+    }
 
     if (!isLunchTime && !isPastTime) {
       // Check if this slot is booked
