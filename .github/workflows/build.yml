@@ -25,7 +25,11 @@ jobs:
       run: npm install --legacy-peer-deps
 
     - name: Run tests with summary
+      shell: bash
       run: |
+        # Disable exit on error
+        set +e
+
         # Run tests with a script that always exits with code 0
         npm run test:github > test_output.log
         TEST_OUTPUT=$(cat test_output.log)
@@ -150,6 +154,9 @@ jobs:
           echo "Tests failed!"
           exit 1
         fi
+
+        # Re-enable exit on error for the rest of the workflow
+        set -e
 
     - name: Build
       run: npm run build
