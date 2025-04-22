@@ -1,5 +1,30 @@
 # AppointmentEZ Changelog
 
+## [0.2.45] - 2025-04-22
+
+### Changes
+  - Fix double version increment by removing version increment from update-version.js
+  - Bump version to v0.2.45
+  - Fix Render build by adding glob dependency
+  - Bump version to v0.2.44
+  - Fix Render build by adding glob dependency and making validate-imports.js more resilient
+  - Bump version to v0.2.41
+  - Fix GitHub Actions workflow exit-on-error behavior
+  - Bump version to v0.2.40
+  - Fix GitHub Actions workflow by disabling exit-on-error behavior during tests
+  - Bump version to v0.2.38
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.45] - 2025-04-22
+
+### Added
+- Fix version increment to only increment once per build
+
+
 ## [0.2.43] - 2025-04-22
 
 ### Changes
