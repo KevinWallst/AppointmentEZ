@@ -27,7 +27,8 @@ jobs:
     - name: Run tests with summary
       run: |
         # Run tests with a script that always exits with code 0
-        TEST_OUTPUT=$(npm run test:github)
+        npm run test:github > test_output.log
+        TEST_OUTPUT=$(cat test_output.log)
         echo "$TEST_OUTPUT"
 
         # Run timezone-specific tests
