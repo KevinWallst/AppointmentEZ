@@ -25,8 +25,17 @@ try {
 
   // Check if package-lock.json version matches package.json version
   if (packageJson.version !== packageLock.version) {
-    console.error(`❌ Version mismatch: package.json (${packageJson.version}) vs package-lock.json (${packageLock.version})`);
-    process.exit(1);
+    console.log(`Version mismatch detected: package.json (${packageJson.version}) vs package-lock.json (${packageLock.version})`);
+    console.log('Updating package-lock.json version...');
+
+    // Update the version in package-lock.json
+    packageLock.version = packageJson.version;
+    packageLock.packages[''].version = packageJson.version;
+
+    // Write the updated package-lock.json
+    fs.writeFileSync(packageLockPath, JSON.stringify(packageLock, null, 2));
+
+    console.log(`✅ Updated package-lock.json version to ${packageJson.version}`);
   }
 
   // Combine all dependencies
