@@ -84,12 +84,15 @@ const translations: Record<Language, Record<string, string>> = {
     'timezone.nextDay': '次日',
 
     // Admin dashboard
+    'admin.allBookings': '所有预约',
+    'admin.bookings': '预约',
     'admin.allAppointments': '所有预约',
     'admin.todayAppointments': '今天的预约',
     'admin.tomorrowAppointments': '明天的预约',
     'admin.viewAll': '全部',
     'admin.viewDay': '当天',
     'admin.noAppointments': '没有找到预约',
+    'admin.noBookings': '没有找到预约',
     'admin.timeSlots': '时间段',
     'admin.noTimeSlots': '没有可用的时间段',
     'admin.status.upcoming': '即将到来',
@@ -260,12 +263,15 @@ const translations: Record<Language, Record<string, string>> = {
     'timezone.nextDay': 'Next day',
 
     // Admin dashboard
+    'admin.allBookings': 'All Bookings',
+    'admin.bookings': 'Bookings',
     'admin.allAppointments': 'All Appointments',
     'admin.todayAppointments': 'Today\'s Appointments',
     'admin.tomorrowAppointments': 'Tomorrow\'s Appointments',
     'admin.viewAll': 'All',
     'admin.viewDay': 'Today',
     'admin.noAppointments': 'No appointments found',
+    'admin.noBookings': 'No bookings found',
     'admin.timeSlots': 'Time Slots',
     'admin.noTimeSlots': 'No time slots available',
     'admin.status.upcoming': 'Upcoming',

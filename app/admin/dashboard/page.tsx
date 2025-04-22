@@ -33,7 +33,7 @@ interface TimeSlot {
 }
 
 export default function AdminDashboard() {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -284,6 +284,20 @@ export default function AdminDashboard() {
             System Tests
           </button>
           <button
+            onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: 'white',
+              color: '#2196F3',
+              border: '1px solid #2196F3',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginRight: '8px'
+            }}
+          >
+            {language === 'en' ? '中文' : 'English'}
+          </button>
+          <button
             onClick={handleLogout}
             style={{
               padding: '8px 16px',
@@ -418,9 +432,45 @@ export default function AdminDashboard() {
 
           {/* Right Column - Bookings Table */}
           <div style={{ flex: '1', minWidth: '300px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>
-              {t('admin.allBookings')}
-            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+                {viewMode === 'all' ? t('admin.allBookings') : `${format(selectedDate || new Date(), 'yyyy-MM-dd')} ${t('admin.bookings')}`}
+              </h2>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setViewMode('all')}
+                  style={{
+                    padding: '4px 12px',
+                    backgroundColor: viewMode === 'all' ? '#2196F3' : '#e0e0e0',
+                    color: viewMode === 'all' ? 'white' : 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {t('admin.viewAll')}
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedDate) {
+                      setViewMode('day');
+                      filterBookings(bookings, 'day', selectedDate);
+                    }
+                  }}
+                  style={{
+                    padding: '4px 12px',
+                    backgroundColor: viewMode === 'day' ? '#2196F3' : '#e0e0e0',
+                    color: viewMode === 'day' ? 'white' : 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: selectedDate ? 'pointer' : 'not-allowed',
+                    opacity: selectedDate ? 1 : 0.5
+                  }}
+                >
+                  {t('admin.viewDay')}
+                </button>
+              </div>
+            </div>
 
             {loading ? (
               <p>{t('loading')}</p>

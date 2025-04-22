@@ -356,8 +356,23 @@ export async function GET(request: Request) {
       // Parse the date parameter
       const selectedDate = new Date(dateParam);
 
+      // Filter bookings for this specific date only
+      const dateBookings = bookings.filter(booking => {
+        const bookingDate = new Date(booking.appointmentTime);
+        return (
+          bookingDate.getFullYear() === selectedDate.getFullYear() &&
+          bookingDate.getMonth() === selectedDate.getMonth() &&
+          bookingDate.getDate() === selectedDate.getDate()
+        );
+      });
+
+      console.log(`Found ${dateBookings.length} bookings for date ${dateParam}`);
+      dateBookings.forEach(booking => {
+        console.log(`Booking ID: ${booking.id}, Time: ${booking.appointmentTime}`);
+      });
+
       // Generate time slots for the selected date
-      const timeSlots = generateTimeSlots(selectedDate, bookings);
+      const timeSlots = generateTimeSlots(selectedDate, dateBookings);
 
       return NextResponse.json({ timeSlots }, { status: 200 });
     }
@@ -415,13 +430,19 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
       // Check if this slot is booked
       const isBooked = bookings.some(booking => {
         const bookingTime = new Date(booking.appointmentTime);
-        return (
+        const match = (
           bookingTime.getFullYear() === currentTime.getFullYear() &&
           bookingTime.getMonth() === currentTime.getMonth() &&
           bookingTime.getDate() === currentTime.getDate() &&
           bookingTime.getHours() === currentTime.getHours() &&
           bookingTime.getMinutes() === currentTime.getMinutes()
         );
+
+        if (match) {
+          console.log(`Found booking for slot: ${currentTime.toISOString()} - ID: ${booking.id}`);
+        }
+
+        return match;
       });
 
       slots.push({
