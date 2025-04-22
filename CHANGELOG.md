@@ -1,5 +1,30 @@
 # AppointmentEZ Changelog
 
+## [0.2.33] - 2025-04-22
+
+### Changes
+  - Bump version to v0.2.32
+  - Fix GitHub Actions test script
+  - Bump version to v0.2.31
+  - Fix GitHub Actions test script to properly handle exit codes
+  - Bump version to v0.2.29
+  - Add package validation to prevent GitHub Actions errors
+  - Bump version to v0.2.28
+  - Update package-lock validation to automatically fix version mismatches
+  - Add package-lock validation script to prevent npm ci errors in GitHub Actions
+  - Bump version to v0.2.24
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.32] - 2025-04-22
+
+### Added
+- Test for error code 1
+
+
 ## [0.2.30] - 2025-04-22
 
 ### Changes
