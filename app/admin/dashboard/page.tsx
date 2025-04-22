@@ -28,7 +28,7 @@ interface Booking {
 }
 
 interface TimeSlot {
-  time: Date;
+  time: string;
   isBooked: boolean;
 }
 
@@ -57,13 +57,13 @@ export default function AdminDashboard() {
       setLoading(true);
       const response = await fetch('/api/bookings');
       const data = await response.json();
-      
+
       if (data.bookings) {
         // Sort bookings by date (most recent at the bottom)
         const sortedBookings = data.bookings.sort((a: Booking, b: Booking) => {
           return new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime();
         });
-        
+
         setBookings(sortedBookings);
         filterBookings(sortedBookings, viewMode, selectedDate);
       }
@@ -103,22 +103,17 @@ export default function AdminDashboard() {
   const generateTimeSlots = async (date: Date) => {
     try {
       setLoadingTimeSlots(true);
-      
+
       // Format the date as YYYY-MM-DD
       const formattedDate = format(date, 'yyyy-MM-dd');
-      
+
       // Fetch available time slots from the API
       const response = await fetch(`/api/bookings?date=${formattedDate}`);
       const data = await response.json();
-      
+
       if (data.timeSlots) {
-        // Convert string times to Date objects and mark booked slots
-        const slots = data.timeSlots.map((slot: any) => ({
-          time: new Date(slot.time),
-          isBooked: slot.isBooked
-        }));
-        
-        setTimeSlots(slots);
+        // Use the time slots directly from the API
+        setTimeSlots(data.timeSlots);
       }
     } catch (error) {
       console.error('Error generating time slots:', error);
@@ -136,7 +131,7 @@ export default function AdminDashboard() {
 
   // Handle time slot selection
   const handleTimeSlotSelect = (slot: TimeSlot) => {
-    setSelectedSlot(slot.time);
+    setSelectedSlot(new Date(slot.time));
     setIsEditMode(false);
     setModalOpen(true);
   };
@@ -158,11 +153,11 @@ export default function AdminDashboard() {
   const getBookingStatus = (appointmentTimeStr: string) => {
     const appointmentTime = new Date(appointmentTimeStr);
     const now = new Date();
-    
+
     // Calculate days difference
     const diffTime = appointmentTime.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     // Return relative days
     return diffDays.toString();
   };
@@ -177,7 +172,7 @@ export default function AdminDashboard() {
     // Clear both cookie and localStorage
     Cookies.remove('adminAuthenticated', { path: '/' });
     localStorage.removeItem('adminAuthenticated');
-    
+
     // Redirect to login page
     router.push('/admin/login');
   };
@@ -188,23 +183,23 @@ export default function AdminDashboard() {
     if (selectedDate && isSameDay(day, selectedDate)) {
       return '#2196f3'; // Blue for selected date
     }
-    
+
     // Check if there are any bookings for this day
     const hasBookings = bookings.some(booking => {
       const bookingDate = new Date(booking.appointmentTime);
       return isSameDay(bookingDate, day);
     });
-    
+
     if (hasBookings) {
       return '#ffcdd2'; // Red for days with bookings
     }
-    
+
     // Check if it's a weekend
     const dayOfWeek = getDay(day);
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       return '#f5f5f5'; // Gray for weekends
     }
-    
+
     return '#e8f5e9'; // Green for available days
   };
 
@@ -213,22 +208,22 @@ export default function AdminDashboard() {
     // Check both cookie and localStorage for authentication
     const isAuthenticatedCookie = Cookies.get('adminAuthenticated') === 'true';
     const isAuthenticatedLocal = localStorage.getItem('adminAuthenticated') === 'true';
-    
+
     if (!isAuthenticatedCookie && !isAuthenticatedLocal) {
       router.push('/admin/login');
       return;
     }
-    
+
     // If only localStorage is set, also set the cookie for middleware protection
     if (!isAuthenticatedCookie && isAuthenticatedLocal) {
-      Cookies.set('adminAuthenticated', 'true', { 
+      Cookies.set('adminAuthenticated', 'true', {
         expires: 1, // Expires in 1 day
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
     }
-    
+
     // Load bookings
     fetchBookings();
     // Generate calendar days
@@ -323,7 +318,7 @@ export default function AdminDashboard() {
           <Tab label={t('admin.tabs.health')} />
         </Tabs>
       </Box>
-      
+
       {/* Dashboard Tab */}
       {activeTab === 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px' }}>
@@ -332,10 +327,10 @@ export default function AdminDashboard() {
             <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>
               {format(selectedDate || new Date(), 'yyyy年MM月')}
             </h2>
-            
+
             {/* Calendar Header - Days of Week */}
-            <div style={{ 
-              display: 'grid', 
+            <div style={{
+              display: 'grid',
               gridTemplateColumns: 'repeat(7, 1fr)',
               textAlign: 'center',
               marginBottom: '8px',
@@ -349,10 +344,10 @@ export default function AdminDashboard() {
               <div>五</div>
               <div>六</div>
             </div>
-            
+
             {/* Calendar Grid */}
-            <div style={{ 
-              display: 'grid', 
+            <div style={{
+              display: 'grid',
               gridTemplateColumns: 'repeat(7, 1fr)',
               gap: '4px'
             }}>
@@ -360,12 +355,12 @@ export default function AdminDashboard() {
               {Array.from({ length: getDay(startOfMonth(selectedDate || new Date())) }).map((_, index) => (
                 <div key={`empty-start-${index}`} style={{ height: '40px' }}></div>
               ))}
-              
+
               {/* Calendar days */}
               {calendarDays.map((day, index) => {
                 const backgroundColor = getCellBackgroundColor(day);
                 const isSelected = selectedDate && isSameDay(day, selectedDate);
-                
+
                 return (
                   <div
                     key={index}
@@ -386,7 +381,7 @@ export default function AdminDashboard() {
                 );
               })}
             </div>
-            
+
             {/* Time Slots Section */}
             {viewMode === 'day' && selectedDate && (
               <div style={{ marginTop: '32px' }}>
@@ -412,7 +407,7 @@ export default function AdminDashboard() {
                           opacity: slot.isBooked ? 0.7 : 1
                         }}
                       >
-                        {format(slot.time, 'HH:mm')}
+                        {format(new Date(slot.time), 'HH:mm')}
                       </div>
                     ))}
                   </div>
@@ -420,13 +415,13 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
-          
+
           {/* Right Column - Bookings Table */}
           <div style={{ flex: '1', minWidth: '300px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>
               {t('admin.allBookings')}
             </h2>
-            
+
             {loading ? (
               <p>{t('loading')}</p>
             ) : filteredBookings.length === 0 ? (
@@ -480,10 +475,10 @@ export default function AdminDashboard() {
                     {filteredBookings.map((booking, index) => {
                       const status = getBookingStatus(booking.appointmentTime);
                       return (
-                        <tr 
+                        <tr
                           key={index}
                           onClick={() => handleBookingSelect(booking)}
-                          style={{ 
+                          style={{
                             cursor: 'pointer',
                             backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9'
                           }}
@@ -538,21 +533,21 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-      
+
       {/* System Maintenance Tab */}
       {activeTab === 1 && (
         <div style={{ padding: '16px 0' }}>
           <SystemMaintenance />
         </div>
       )}
-      
+
       {/* Health Check Tab */}
       {activeTab === 2 && (
         <div style={{ padding: '16px 0' }}>
           <HealthCheck />
         </div>
       )}
-      
+
       {/* Appointment Modal */}
       {modalOpen && (
         <AppointmentModal
@@ -574,7 +569,7 @@ export default function AdminDashboard() {
             try {
               const endpoint = isEditMode ? '/api/appointments/update' : '/api/appointments/book';
               const method = isEditMode ? 'PUT' : 'POST';
-              
+
               const response = await fetch(endpoint, {
                 method,
                 headers: {
@@ -582,7 +577,7 @@ export default function AdminDashboard() {
                 },
                 body: JSON.stringify(bookingData)
               });
-              
+
               const data = await response.json();
               return data.success;
             } catch (error) {
@@ -594,7 +589,7 @@ export default function AdminDashboard() {
             if (!selectedBooking || !selectedBooking.id) {
               return false;
             }
-            
+
             try {
               const response = await fetch('/api/appointments/delete', {
                 method: 'DELETE',
@@ -603,7 +598,7 @@ export default function AdminDashboard() {
                 },
                 body: JSON.stringify({ id: selectedBooking.id })
               });
-              
+
               const data = await response.json();
               return data.success;
             } catch (error) {

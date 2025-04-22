@@ -341,15 +341,98 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const dateParam = searchParams.get('date');
+
+    // Get all bookings
     const bookings = await readBookings();
+
+    // If a date parameter is provided, generate time slots for that date
+    if (dateParam) {
+      console.log('Generating time slots for date:', dateParam);
+
+      // Parse the date parameter
+      const selectedDate = new Date(dateParam);
+
+      // Generate time slots for the selected date
+      const timeSlots = generateTimeSlots(selectedDate, bookings);
+
+      return NextResponse.json({ timeSlots }, { status: 200 });
+    }
+
+    // If no date parameter, just return all bookings
     return NextResponse.json({ bookings }, { status: 200 });
   } catch (error) {
-    console.error('Error retrieving bookings:', error);
+    console.error('Error retrieving data:', error);
     return NextResponse.json(
-      { error: 'Failed to retrieve bookings' },
+      { error: 'Failed to retrieve data' },
       { status: 500 }
     );
   }
+}
+
+// Function to generate time slots for a given date
+function generateTimeSlots(date: Date, bookings: Booking[]) {
+  // Create a new date object to avoid modifying the original
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // Create slots from 9 AM to 5 PM
+  const slots = [];
+
+  // Start time: 9 AM
+  let currentTime = new Date(year, month, day, 9, 0, 0);
+  // End time: 5 PM
+  const endTime = new Date(year, month, day, 17, 0, 0);
+
+  // Define lunch break (12 PM to 1 PM)
+  const lunchStart = new Date(year, month, day, 12, 0, 0);
+  const lunchEnd = new Date(year, month, day, 13, 0, 0);
+
+  // Check if the date is today
+  const today = new Date();
+  const isToday = (
+    today.getFullYear() === year &&
+    today.getMonth() === month &&
+    today.getDate() === day
+  );
+
+  // Current time in UTC
+  const currentUTC = new Date();
+
+  // Generate slots every 30 minutes
+  while (currentTime < endTime) {
+    // Skip lunch break
+    const isLunchTime = currentTime >= lunchStart && currentTime < lunchEnd;
+
+    // Skip past times if the selected date is today
+    const isPastTime = isToday && currentTime < currentUTC;
+
+    if (!isLunchTime && !isPastTime) {
+      // Check if this slot is booked
+      const isBooked = bookings.some(booking => {
+        const bookingTime = new Date(booking.appointmentTime);
+        return (
+          bookingTime.getFullYear() === currentTime.getFullYear() &&
+          bookingTime.getMonth() === currentTime.getMonth() &&
+          bookingTime.getDate() === currentTime.getDate() &&
+          bookingTime.getHours() === currentTime.getHours() &&
+          bookingTime.getMinutes() === currentTime.getMinutes()
+        );
+      });
+
+      slots.push({
+        time: new Date(currentTime).toISOString(),
+        isBooked
+      });
+    }
+
+    // Add 30 minutes for the next slot
+    currentTime = new Date(currentTime.getTime() + 30 * 60 * 1000);
+  }
+
+  return slots;
 }
