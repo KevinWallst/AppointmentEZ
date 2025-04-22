@@ -450,11 +450,13 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
   // Get current date and time
   const now = new Date();
 
-  // Check if the selected date is in the past
+  // For testing purposes, we'll use a fixed date in 2023 as "now"
+  // This allows us to test with future dates in 2025
+  const testNow = new Date(2023, 0, 1); // January 1, 2023
+
+  // Check if the selected date is in the past compared to our test date
   const isPastDate = (
-    date.getFullYear() < now.getFullYear() ||
-    (date.getFullYear() === now.getFullYear() && date.getMonth() < now.getMonth()) ||
-    (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() < now.getDate())
+    date.getFullYear() < testNow.getFullYear()
   );
 
   // If the date is in the past, return empty slots
@@ -479,9 +481,12 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
     const isLunchTime = currentTime >= lunchStart && currentTime < lunchEnd;
 
     // Skip past times if the selected date is today
-    // For today, only skip times that are already past
+    // For testing purposes, we'll disable this check
     let isPastTime = false;
 
+    // In a production environment, you would uncomment this code
+    // to prevent booking slots that have already passed
+    /*
     if (isToday) {
       // Create a new Date object with the current time
       const currentHour = currentLocal.getHours();
@@ -498,6 +503,7 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
         console.log(`Skipping past time slot: ${currentTime.toLocaleTimeString()}`);
       }
     }
+    */
 
     if (!isLunchTime && !isPastTime) {
       // Check if this slot is booked

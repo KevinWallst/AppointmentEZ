@@ -197,20 +197,21 @@ export default function AdminDashboard() {
           // Convert to EDT (UTC-4) for display in the calendar
           bookingDate = new Date(bookingTimeStr);
 
-          // Create a new date with EDT date components to ensure correct day comparison
-          const edtYear = bookingDate.getUTCFullYear();
-          const edtMonth = bookingDate.getUTCMonth();
-          const edtDay = bookingDate.getUTCDate();
-          const edtHours = bookingDate.getUTCHours() - 4; // EDT is UTC-4
+          // For calendar display, we need to convert UTC to EDT (UTC-4)
+          // This ensures bookings show up on the correct day in the calendar
+          const bookingUTCHours = bookingDate.getUTCHours();
 
-          // If the time conversion crosses a day boundary, adjust the date
-          let adjustedDate = new Date(Date.UTC(edtYear, edtMonth, edtDay));
-          if (edtHours < 0) {
-            // If EDT time is negative, it means we need to go back one day
-            adjustedDate = new Date(adjustedDate.getTime() - 24 * 60 * 60 * 1000);
-          }
+          // Create a new date object for the booking in EDT
+          const edtDate = new Date(bookingDate.getTime());
 
-          return isSameDay(adjustedDate, day);
+          // Adjust for EDT (UTC-4)
+          edtDate.setUTCHours(bookingUTCHours - 4);
+
+          // Log for debugging
+          console.log(`Calendar: Converting booking from UTC ${bookingDate.toISOString()} to EDT ${edtDate.toISOString()}`);
+
+          // Use the EDT date for comparison
+          return isSameDay(edtDate, day);
         } else {
           // Localized format: 4/21/2025, 9:00:00 AM
           const parts = bookingTimeStr.split(', ');
