@@ -388,9 +388,9 @@ export async function GET(request: Request) {
             const isPM = timePieces[1] === 'PM';
 
             // Create date object (in local time)
-            bookingDate = new Date(year, month, day,
-              isPM && hours < 12 ? hours + 12 : hours,
-              minutes, seconds);
+            bookingDate = new Date(Date.UTC(year, month, day,
+              (isPM && hours < 12 ? hours + 12 : hours) - 4, // Convert EDT to UTC (EDT is UTC-4)
+              minutes, seconds));
           }
 
           console.log(`Comparing booking date: ${bookingDate.toISOString()} with selected date: ${selectedDate.toISOString()}`);
@@ -455,8 +455,12 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
     today.getDate() === day
   );
 
-  // Current time in UTC
-  const currentUTC = new Date();
+  // Current time in local time zone
+  const currentLocal = new Date();
+
+  // Convert current time to EDT (UTC-4) for consistent comparison
+  const currentEDT = new Date(currentLocal);
+  currentEDT.setHours(currentLocal.getHours() - 4); // Adjust for EDT time zone
 
   // Generate slots every 30 minutes
   while (currentTime < endTime) {
@@ -464,7 +468,12 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
     const isLunchTime = currentTime >= lunchStart && currentTime < lunchEnd;
 
     // Skip past times if the selected date is today
-    const isPastTime = isToday && currentTime < currentUTC;
+    // Compare using the date components only to avoid time zone issues
+    const isPastTime = isToday && (
+      currentTime.getHours() < currentLocal.getHours() ||
+      (currentTime.getHours() === currentLocal.getHours() &&
+       currentTime.getMinutes() < currentLocal.getMinutes())
+    );
 
     if (!isLunchTime && !isPastTime) {
       // Check if this slot is booked
@@ -499,9 +508,9 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
             const isPM = timePieces[1] === 'PM';
 
             // Create date object (in local time)
-            bookingTime = new Date(year, month, day,
-              isPM && hours < 12 ? hours + 12 : hours,
-              minutes, seconds);
+            bookingTime = new Date(Date.UTC(year, month, day,
+              (isPM && hours < 12 ? hours + 12 : hours) - 4, // Convert EDT to UTC (EDT is UTC-4)
+              minutes, seconds));
           }
 
           const match = (
