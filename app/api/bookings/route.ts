@@ -358,12 +358,52 @@ export async function GET(request: Request) {
 
       // Filter bookings for this specific date only
       const dateBookings = bookings.filter(booking => {
-        const bookingDate = new Date(booking.appointmentTime);
-        return (
-          bookingDate.getFullYear() === selectedDate.getFullYear() &&
-          bookingDate.getMonth() === selectedDate.getMonth() &&
-          bookingDate.getDate() === selectedDate.getDate()
-        );
+        try {
+          // Handle different date formats
+          const bookingTime = booking.appointmentTime;
+          let bookingDate;
+
+          // Check if it's in ISO format or localized format
+          if (bookingTime.includes('T')) {
+            // ISO format: 2025-04-23T13:00:00.000Z
+            bookingDate = new Date(bookingTime);
+          } else {
+            // Localized format: 4/21/2025, 9:00:00 AM
+            const parts = bookingTime.split(', ');
+            const datePart = parts[0];
+            const timePart = parts[1];
+
+            // Parse date part (M/D/YYYY)
+            const datePieces = datePart.split('/');
+            const month = parseInt(datePieces[0]) - 1; // 0-based month
+            const day = parseInt(datePieces[1]);
+            const year = parseInt(datePieces[2]);
+
+            // Parse time part (H:MM:SS AM/PM)
+            const timePieces = timePart.split(' ');
+            const timeValues = timePieces[0].split(':');
+            const hours = parseInt(timeValues[0]);
+            const minutes = parseInt(timeValues[1]);
+            const seconds = timeValues.length > 2 ? parseInt(timeValues[2]) : 0;
+            const isPM = timePieces[1] === 'PM';
+
+            // Create date object (in local time)
+            bookingDate = new Date(year, month, day,
+              isPM && hours < 12 ? hours + 12 : hours,
+              minutes, seconds);
+          }
+
+          console.log(`Comparing booking date: ${bookingDate.toISOString()} with selected date: ${selectedDate.toISOString()}`);
+
+          return (
+            bookingDate.getFullYear() === selectedDate.getFullYear() &&
+            bookingDate.getMonth() === selectedDate.getMonth() &&
+            bookingDate.getDate() === selectedDate.getDate()
+          );
+        } catch (error) {
+          console.error(`Error parsing date: ${booking.appointmentTime}`, error);
+          return false;
+        }
       });
 
       console.log(`Found ${dateBookings.length} bookings for date ${dateParam}`);
@@ -429,20 +469,58 @@ function generateTimeSlots(date: Date, bookings: Booking[]) {
     if (!isLunchTime && !isPastTime) {
       // Check if this slot is booked
       const isBooked = bookings.some(booking => {
-        const bookingTime = new Date(booking.appointmentTime);
-        const match = (
-          bookingTime.getFullYear() === currentTime.getFullYear() &&
-          bookingTime.getMonth() === currentTime.getMonth() &&
-          bookingTime.getDate() === currentTime.getDate() &&
-          bookingTime.getHours() === currentTime.getHours() &&
-          bookingTime.getMinutes() === currentTime.getMinutes()
-        );
+        try {
+          // Handle different date formats
+          const bookingTimeStr = booking.appointmentTime;
+          let bookingTime;
 
-        if (match) {
-          console.log(`Found booking for slot: ${currentTime.toISOString()} - ID: ${booking.id}`);
+          // Check if it's in ISO format or localized format
+          if (bookingTimeStr.includes('T')) {
+            // ISO format: 2025-04-23T13:00:00.000Z
+            bookingTime = new Date(bookingTimeStr);
+          } else {
+            // Localized format: 4/21/2025, 9:00:00 AM
+            const parts = bookingTimeStr.split(', ');
+            const datePart = parts[0];
+            const timePart = parts[1];
+
+            // Parse date part (M/D/YYYY)
+            const datePieces = datePart.split('/');
+            const month = parseInt(datePieces[0]) - 1; // 0-based month
+            const day = parseInt(datePieces[1]);
+            const year = parseInt(datePieces[2]);
+
+            // Parse time part (H:MM:SS AM/PM)
+            const timePieces = timePart.split(' ');
+            const timeValues = timePieces[0].split(':');
+            const hours = parseInt(timeValues[0]);
+            const minutes = parseInt(timeValues[1]);
+            const seconds = timeValues.length > 2 ? parseInt(timeValues[2]) : 0;
+            const isPM = timePieces[1] === 'PM';
+
+            // Create date object (in local time)
+            bookingTime = new Date(year, month, day,
+              isPM && hours < 12 ? hours + 12 : hours,
+              minutes, seconds);
+          }
+
+          const match = (
+            bookingTime.getFullYear() === currentTime.getFullYear() &&
+            bookingTime.getMonth() === currentTime.getMonth() &&
+            bookingTime.getDate() === currentTime.getDate() &&
+            bookingTime.getHours() === currentTime.getHours() &&
+            bookingTime.getMinutes() === currentTime.getMinutes()
+          );
+
+          if (match) {
+            console.log(`Found booking for slot: ${currentTime.toISOString()} - ID: ${booking.id}`);
+          }
+
+          return match;
+        } catch (error) {
+          console.error(`Error parsing date: ${booking.appointmentTime}`, error);
+          return false;
         }
-
-        return match;
       });
 
       slots.push({
