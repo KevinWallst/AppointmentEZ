@@ -1,5 +1,49 @@
 # AppointmentEZ Changelog
 
+## [0.2.43] - 2025-04-22
+
+### Changes
+  - Fix Render build by adding glob dependency and making validate-imports.js more resilient
+  - Bump version to v0.2.41
+  - Fix GitHub Actions workflow exit-on-error behavior
+  - Bump version to v0.2.40
+  - Fix GitHub Actions workflow by disabling exit-on-error behavior during tests
+  - Bump version to v0.2.38
+  - Verify test scripts exit with code 0
+  - Bump version to v0.2.37
+  - Bump version to v0.2.35
+  - Test for error code 1
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.42] - 2025-04-22
+- Fix Render build by adding glob dependency
+### Changes
+  - Fix Render build by adding glob dependency and making validate-imports.js more resilient
+  - Bump version to v0.2.41
+  - Fix GitHub Actions workflow exit-on-error behavior
+  - Bump version to v0.2.40
+  - Fix GitHub Actions workflow by disabling exit-on-error behavior during tests
+  - Bump version to v0.2.38
+  - Verify test scripts exit with code 0
+  - Bump version to v0.2.37
+  - Bump version to v0.2.35
+  - Test for error code 1
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.41] - 2025-04-22
+
+### Added
+- Fix Render build by adding glob dependency
+
+
 ## [0.2.39] - 2025-04-22
 
 ### Changes
