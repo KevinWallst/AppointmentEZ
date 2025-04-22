@@ -186,8 +186,50 @@ export default function AdminDashboard() {
 
     // Check if there are any bookings for this day
     const hasBookings = bookings.some(booking => {
-      const bookingDate = new Date(booking.appointmentTime);
-      return isSameDay(bookingDate, day);
+      try {
+        // Handle different date formats with proper time zone conversion
+        const bookingTimeStr = booking.appointmentTime;
+        let bookingDate;
+
+        // Check if it's in ISO format or localized format
+        if (bookingTimeStr.includes('T')) {
+          // ISO format: 2025-04-23T13:00:00.000Z
+          // Convert to EDT (UTC-4) for display in the calendar
+          bookingDate = new Date(bookingTimeStr);
+
+          // Create a new date with EDT date components to ensure correct day comparison
+          const edtYear = bookingDate.getUTCFullYear();
+          const edtMonth = bookingDate.getUTCMonth();
+          const edtDay = bookingDate.getUTCDate();
+          const edtHours = bookingDate.getUTCHours() - 4; // EDT is UTC-4
+
+          // If the time conversion crosses a day boundary, adjust the date
+          let adjustedDate = new Date(Date.UTC(edtYear, edtMonth, edtDay));
+          if (edtHours < 0) {
+            // If EDT time is negative, it means we need to go back one day
+            adjustedDate = new Date(adjustedDate.getTime() - 24 * 60 * 60 * 1000);
+          }
+
+          return isSameDay(adjustedDate, day);
+        } else {
+          // Localized format: 4/21/2025, 9:00:00 AM
+          const parts = bookingTimeStr.split(', ');
+          const datePart = parts[0];
+
+          // Parse date part (M/D/YYYY)
+          const datePieces = datePart.split('/');
+          const month = parseInt(datePieces[0]) - 1; // 0-based month
+          const dayOfMonth = parseInt(datePieces[1]);
+          const year = parseInt(datePieces[2]);
+
+          // Create date object with just the date components (no time)
+          bookingDate = new Date(year, month, dayOfMonth);
+          return isSameDay(bookingDate, day);
+        }
+      } catch (error) {
+        console.error(`Error parsing date for calendar: ${booking.appointmentTime}`, error);
+        return false;
+      }
     });
 
     if (hasBookings) {
