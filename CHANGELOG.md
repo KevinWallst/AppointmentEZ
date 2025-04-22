@@ -1,5 +1,30 @@
 # AppointmentEZ Changelog
 
+## [0.2.47] - 2025-04-22
+
+### Changes
+  - Add comprehensive package dependencies test case
+  - Bump version to v0.2.47
+  - Fix version increment to only increment once per build
+  - Bump version to v0.2.46
+  - Fix double version increment by removing version increment from update-version.js
+  - Bump version to v0.2.45
+  - Fix Render build by adding glob dependency
+  - Bump version to v0.2.44
+  - Fix Render build by adding glob dependency and making validate-imports.js more resilient
+  - Bump version to v0.2.41
+
+### Git Diff
+```diff
+
+```
+
+## [0.2.47] - 2025-04-22
+
+### Added
+- Add comprehensive package dependencies test
+
+
 ## [0.2.45] - 2025-04-22
 
 ### Changes
