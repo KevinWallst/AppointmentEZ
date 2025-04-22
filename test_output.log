@@ -1,0 +1,34 @@
+
+> appointmentez@0.2.35 test:github
+> jest --passWithNoTests; EXIT_CODE=$?; echo 'Tests completed with exit code '$EXIT_CODE; exit 0
+
+PASS __tests__/mui-icons.test.js
+PASS __tests__/mui-icons-material.test.js
+PASS __tests__/modal-close-race-condition.test.js
+PASS __tests__/ui/adminTableAlignment.test.tsx
+PASS __tests__/booking-concurrency.test.js
+PASS __tests__/admin-delete.test.js
+PASS __tests__/delete-api.test.js
+PASS __tests__/appointment-modal-flow.test.js
+PASS __tests__/fetch-interceptor.test.js
+PASS __tests__/api/emailConfirmation.test.ts
+PASS __tests__/appointment-deletion.test.js
+PASS __tests__/admin/dashboard.test.ts
+PASS __tests__/imports/importPaths.test.ts
+PASS __tests__/localization/shanghaiUser.test.ts
+PASS __tests__/ui/dateSelection.test.ts
+PASS __tests__/api/bookings.test.ts
+PASS __tests__/imports/moduleLoading.test.ts
+PASS __tests__/utils/dateUtils.test.ts
+PASS __tests__/build-script-dependencies.test.js
+PASS __tests__/admin-dashboard-modal.test.js
+PASS __tests__/admin-operations.test.js
+PASS __tests__/health-check.test.js
+PASS __tests__/admin-dashboard-race-condition.test.js
+
+Test Suites: 23 passed, 23 total
+Tests:       77 passed, 77 total
+Snapshots:   0 total
+Time:        2.615 s
+Ran all test suites.
+Tests completed with exit code 0

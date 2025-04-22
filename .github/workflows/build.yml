@@ -33,10 +33,12 @@ jobs:
 
         # Run timezone-specific tests
         echo "Running timezone-specific tests..."
-        npm run test:timezone || echo "Timezone tests completed with non-zero exit code"
+        npm run test:timezone-github > timezone_output.log
+        TIMEZONE_OUTPUT=$(cat timezone_output.log)
+        echo "$TIMEZONE_OUTPUT"
 
         # Check if tests actually failed (not just exit code issues)
-        if echo "$TEST_OUTPUT" | grep -q "FAIL "; then
+        if echo "$TEST_OUTPUT" | grep -q "FAIL " || echo "$TIMEZONE_OUTPUT" | grep -q "FAIL "; then
           echo "Tests failed!"
           TEST_FAILED=true
         else
